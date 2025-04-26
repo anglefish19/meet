@@ -1,0 +1,195 @@
+:root {
+    --light: oklch(0.78 0.0789 245.46);
+    --lightST: #8dbde766;
+    --lightHover: oklch(0.73 0.0789 245.46);
+    --medium: oklch(0.48 0.1042 248.25);
+    --dark: oklch(0.3 0.0747 249.76);
+}
+
+* {
+    font-family: Helvetica Neue, Segoe UI, sans-serif;
+    line-height: 1.6;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+}
+
+#app {
+    display: grid;
+    grid-template-rows: 10vh 1fr;
+}
+
+header {
+    display: grid;
+    grid-template-columns: 1fr 7em;
+    background-color: var(--light);
+    padding-inline: 0.5em;
+    align-items: center;
+}
+
+h1 {
+    margin-inline-start: 0.25em;
+}
+
+h1, h2 {
+    margin-block: 0;
+    padding-block: 0.1em;
+}
+
+header button {
+    height: 100%;
+}
+
+button, input[type="submit"] {
+    background-color: var(--light);
+    font-size: 12pt;
+    font-weight: 500;
+    border-style: none;
+    padding-inline: 0.5em;
+}
+
+button:hover, input[type="submit"]:hover, .imgIcon:hover {
+    background-color: var(--lightHover);
+    cursor: pointer;
+}
+
+div, main {
+    height: 100%;
+}
+
+main div {
+    display: grid;
+    grid-template-columns: 4em 25em 1fr;
+}
+
+#sidebar {
+    display: grid;
+    background-color: var(--medium);
+    width: 100%;
+    justify-items: center;
+    padding-top: 1em;
+    grid-template-rows: 4.5em 4.5em 4.5em 1fr;
+}
+
+.imgIcon {
+    background-color: transparent;
+    border: none;
+    margin: 0;
+    padding: 0;
+    justify-items: inherit;
+    font: inherit;
+    border-radius: 0;
+    appearance: none;
+}
+
+#sidebar img {
+    max-width: 70%;
+    filter: invert(100%);
+}
+
+#chats {
+    border-inline-style: solid;
+    border-inline-color: var(--light);
+    border-inline-width: 2px;
+    height: 1fr;
+}
+
+#chats, #chat {
+    padding-inline: 1em;
+    padding-block-start: 0.5em;
+}
+
+#chat {
+    display: grid;
+    grid-template-rows: 3em 2em 1fr 4em;
+}
+
+#sendbar {
+    display: grid;
+    grid-template-columns: 5em 1fr;
+    padding-block: 0.5em;
+}
+
+#sendbar section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+#sendbar img {
+    max-width: 70%;
+    margin-inline-end: 0.25em;
+}
+
+#sendbar form {
+    display: grid;
+    grid-template-columns: 1fr 5em;
+}
+
+#sendbar form input[type="text"] {
+    width: 100%;
+}
+
+.chat {
+    width: 100%;
+}
+
+.chat:hover {
+    color: var(--medium);
+    cursor: pointer;
+}
+
+button, input {
+    margin: 3px;
+}
+
+input[type="text"] {
+    width: 300px;
+}
+
+:checked + input[type="text"] {
+    color: gray;
+    font-style: italic;
+    text-decoration: line-through;
+}
+
+fieldset {
+    display: contents;
+}
+
+.icon {
+    padding: 5px;
+}
+
+.icon:nth-child(2) {
+    padding-inline-end: 0.75em;
+}
+
+.icon:hover {
+    background-color: var(--lightST);
+    cursor: pointer;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    display: grid;
+    grid-template-columns: 1fr 4em;
+    grid-template-rows: auto auto;
+}
+
+li form {
+    grid-row: 2;
+}
+
+.hiddenUnlessReveal {
+    display: none;
+}
+
+.reveal {
+    display: block;
+}
