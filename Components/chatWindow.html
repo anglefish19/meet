@@ -2,7 +2,7 @@
     <!-- TODO: write leaveChat fxn -->
     <h2>{{currentChatName}} <span v-if="currentChat != 'no chat selected'" class="icon" @click="leaveChat()">🚪➡️</span></h2>
 
-    <graffiti-discover id="chatMessages" v-slot="{ objects: messageObjects, isInitialPolling }"
+    <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }"
         :channels="[currentChat.channel]" :schema="{
                 properties: {
                     value: {
