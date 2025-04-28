@@ -5,174 +5,35 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>meet</title>
-    <script type="importmap">
-            {
-                "imports": {
-                    "vue": "https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.esm-browser.js",
-                    "@graffiti-garden/implementation-local": "https://cdn.jsdelivr.net/npm/@graffiti-garden/implementation-local@0.6.4/dist/browser/index.js",
-                    "@graffiti-garden/implementation-remote": "https://cdn.jsdelivr.net/npm/@graffiti-garden/implementation-remote@0.6.2/dist/browser/index.js",
-                    "@graffiti-garden/wrapper-vue": "https://cdn.jsdelivr.net/npm/@graffiti-garden/wrapper-vue@0.7.2/dist/browser/plugin.mjs"
-                }
-            }
-        </script>
     <link rel="stylesheet" href="style.css" />
+    <script type="importmap">
+        {
+            "imports": {
+                "vue": "https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.esm-browser.js",
+                "vue-router": "https://cdn.jsdelivr.net/npm/vue-router@4.5.0/dist/vue-router.esm-browser.prod.js",
+                "@graffiti-garden/implementation-local": "https://cdn.jsdelivr.net/npm/@graffiti-garden/implementation-local@0.6.4/dist/browser/index.js",
+                "@graffiti-garden/implementation-remote": "https://cdn.jsdelivr.net/npm/@graffiti-garden/implementation-remote@0.6.2/dist/browser/index.js",
+                "@graffiti-garden/wrapper-vue": "https://cdn.jsdelivr.net/npm/@graffiti-garden/wrapper-vue@0.7.2/dist/browser/plugin.mjs"
+            }
+        }
+    </script>
+    <script src="./Scripts/index.js" type="module"></script>
 </head>
 
 <body>
     <div id="app">
         <header>
             <h1>meet<span v-if="$graffitiSession.value"> | {{$graffitiSession.value.actor}}</span></h1>
-            <button v-if="!$graffitiSession.value" @click="$graffiti.login()">
+            <button v-if="!$graffitiSession.value" @click="$graffiti.login(), login()">
                 Log In
             </button>
-            <button v-else @click="$graffiti.logout($graffitiSession.value)">
+            <button v-else @click="$graffiti.logout($graffitiSession.value), logout()">
                 Log Out
             </button>
         </header>
         <main>
-            <div v-if="$graffitiSession.value">
-                <section id="sidebar">
-                    <button class="imgIcon"><img src="./Icons/Account Icon.svg"></button>
-                    <button class="imgIcon"><img src="./Icons/Calendar Icon.svg"></button>
-                    <button class="imgIcon"><img src="./Icons/New Chat Icon.svg"></button>
-                </section>
-
-                <section id="chats">
-                    <h2>{{$graffitiSession.value.actor}}'s chats</h2>
-
-                    <!-- TODO: make this only show up when the user clicks create chat button -->
-                    <form @submit.prevent="createChat($graffitiSession.value)">
-                        <fieldset :disabled="creating">
-                            <!-- TODO: change how members are added -->
-                            <input type="text" v-model="members" placeholder='chat members (separate members using ", ")' ref="chatMembersInput" v-focus />
-                            <input type="text" v-model="chatName" placeholder="chat name" ref="chatNameInput" v-focus />
-                            <input type="submit" :value="creating? 'creating chat...' : 'create chat'" />
-                        </fieldset>
-                    </form>
-
-                    <graffiti-discover v-slot="{ objects: groupChatObjects, isInitialPolling }" :channels="['designftw']"
-                        :schema="{
-                            type: 'object',
-                            required: ['value'],
-                            properties: {
-                                value: {
-                                    type: 'object',
-                                    required: ['activity', 'object'],
-                                    properties: {
-                                        activity: { type: 'string', enum: ['Create'] },
-                                        object: {
-                                            type: 'object',
-                                            required: ['type'],
-                                            properties: {
-                                                type: { enum: ['Group Chat'] }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                        }">
-                        <ul>
-                            <li v-if="isInitialPolling">Loading...</li>
-                            <li v-if="groupChatObjects.length == 0">You're not in any chats yet. Create a chat below!</li>
-                            <li v-for="object of groupChatObjects.sort((a, b) => b.value.name - a.value.name)"
-                                :key="object.url">
-                                <span class="chat" @click="updateCurrentChat(object.value.object)">
-                                    {{ object.value.object.name }}
-                                </span>
-
-                                <section v-if="object.actor == $graffitiSession.value.actor">
-                                    <span class="icon" @click="revealInput($event)">
-                                        ✏️
-                                    </span>
-
-                                    <span class="icon" @click="deleteChat(object)">
-                                        🗑️
-                                    </span>
-                                </section>
-
-                                <form class="hiddenUnlessReveal" @submit.prevent="editChatName($event, object)">
-                                    <input type="text" placeholder="revise the name of the chat above!" v-model="newChatName">
-                                    <input type="submit" value="Save" />
-                                </form>
-                            </li>
-                        </ul>
-                    </graffiti-discover>
-                </section>
-
-                <section id="chat">
-                    <!-- TODO: write leaveChat fxn -->
-                    <h2>{{currentChatName}} <span v-if="currentChat != 'no chat selected'" class="icon" @click="leaveChat()">🚪➡️</span></h2>
-
-                    <graffiti-discover id="chatMessages" v-slot="{ objects: messageObjects, isInitialPolling }"
-                        :channels="[currentChat.channel]" :schema="{
-                                properties: {
-                                    value: {
-                                        required: ['content', 'published'],
-                                        properties: {
-                                            content: { type: 'string' },
-                                            published: { type: 'number' }
-                                        }
-                                    }
-                                }
-                            }">
-                        <!-- currently, anyone in a chat can add people to that chat; may change later -->
-                        <!-- will also add members list later -->
-                        <form v-if="currentChat != 'no chat selected'" @submit.prevent="addMembers($graffitiSession.value, currentChat.channel, newMembers)">
-                            <fieldset :disabled="adding">
-                                <!-- change how members are added later -->
-                                <input type="text" v-model="newMembers" placeholder='chat members (separate members using ", ")' ref="newChatMembersInput" v-focus />
-                                <input type="submit" :value="adding? 'adding members...' : 'add members'" />
-                            </fieldset>
-                        </form>
-
-                        <ul>
-                            <li v-if="isInitialPolling">Loading...</li>
-                            <li v-for="object of messageObjects.sort((a, b) => a.value.published - b.value.published)"
-                                :key="object.url">
-                                <section>
-                                    <strong>
-                                        {{ object.actor }}<span v-if="object.actor===$graffitiSession.value.actor">
-                                            (you)</span></strong>: {{ object.value.content }}
-                                </section>
-
-                                <section v-if="object.actor == $graffitiSession.value.actor">
-                                    <span class="icon" @click="revealInput($event)">
-                                        ✏️
-                                    </span>
-
-                                    <span class="icon" @click="deleteMessage(object)">
-                                        🗑️
-                                    </span>
-                                </section>
-                                <section v-else></section>
-
-                                <form class="hiddenUnlessReveal" @submit.prevent="editMessage($event, object)">
-                                    <input type="text" placeholder="revise above message" v-model="revisedMessage">
-                                    <input type="submit" value="Save" />
-                                </form>
-                            </li>
-                        </ul>
-                    </graffiti-discover>
-
-                    <section id="sendbar" v-if="currentChat != 'no chat selected'">
-                        <!-- TODO: add in scheduler + activity functionality -->
-                        <section>
-                            <button class="imgIcon"><img src="./Icons/Scheduler Icon.svg"></button>
-                            <button class="imgIcon"><img src="./Icons/Activity Suggester Icon.svg"></button>
-                        </section>
-                        <form @submit.prevent="sendMessage($graffitiSession.value)">
-                            <fieldset :disabled="sending">
-                                <input type="text" v-model="message" placeholder="message" ref="messageInput" />
-                                <input type="submit" :value="sending? 'sending...' : 'send'" />
-                            </fieldset>
-                        </form>
-                    </section>
-                </section>
-            </div>
+            <router-view></router-view>
         </main>
     </div>
-
-    <script src="index.js" type="module"></script>
 </body>
-
 </html>

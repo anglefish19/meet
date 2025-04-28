@@ -59,12 +59,12 @@ div, main {
     height: 100%;
 }
 
-main div {
+main {
     display: grid;
     grid-template-columns: 4em 25em 1fr;
 }
 
-#sidebar {
+#navbar {
     display: grid;
     background-color: var(--medium);
     width: 100%;
@@ -84,19 +84,19 @@ main div {
     appearance: none;
 }
 
-#sidebar img {
+img {
     max-width: 70%;
     filter: invert(100%);
 }
 
-#chats {
+#sidebar {
     border-inline-style: solid;
     border-inline-color: var(--light);
     border-inline-width: 2px;
     height: 1fr;
 }
 
-#chats, #chat {
+#sidebar, #chat {
     padding-inline: 1em;
     padding-block-start: 0.5em;
 }

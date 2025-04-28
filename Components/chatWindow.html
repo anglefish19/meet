@@ -1,0 +1,69 @@
+<section id="chat">
+    <!-- TODO: write leaveChat fxn -->
+    <h2>{{currentChatName}} <span v-if="currentChat != 'no chat selected'" class="icon" @click="leaveChat()">🚪➡️</span></h2>
+
+    <graffiti-discover id="chatMessages" v-slot="{ objects: messageObjects, isInitialPolling }"
+        :channels="[currentChat.channel]" :schema="{
+                properties: {
+                    value: {
+                        required: ['content', 'published'],
+                        properties: {
+                            content: { type: 'string' },
+                            published: { type: 'number' }
+                        }
+                    }
+                }
+            }">
+        <!-- currently, anyone in a chat can add people to that chat; may change later -->
+        <!-- will also add members list later -->
+        <form v-if="currentChat != 'no chat selected'" @submit.prevent="addMembers($graffitiSession.value, currentChat.channel, newMembers)">
+            <fieldset :disabled="adding">
+                <!-- change how members are added later -->
+                <input type="text" v-model="newMembers" placeholder='chat members (separate members using ", ")' ref="newChatMembersInput" v-focus />
+                <input type="submit" :value="adding? 'adding members...' : 'add members'" />
+            </fieldset>
+        </form>
+
+        <ul>
+            <li v-if="isInitialPolling">Loading...</li>
+            <li v-for="object of messageObjects.sort((a, b) => a.value.published - b.value.published)"
+                :key="object.url">
+                <section>
+                    <strong>
+                        {{ object.actor }}<span v-if="object.actor===$graffitiSession.value.actor">
+                            (you)</span></strong>: {{ object.value.content }}
+                </section>
+
+                <section v-if="object.actor == $graffitiSession.value.actor">
+                    <span class="icon" @click="revealInput($event)">
+                        ✏️
+                    </span>
+
+                    <span class="icon" @click="deleteMessage(object)">
+                        🗑️
+                    </span>
+                </section>
+                <section v-else></section>
+
+                <form class="hiddenUnlessReveal" @submit.prevent="editMessage($event, object)">
+                    <input type="text" placeholder="revise above message" v-model="revisedMessage">
+                    <input type="submit" value="Save" />
+                </form>
+            </li>
+        </ul>
+    </graffiti-discover>
+
+    <section id="sendbar" v-if="currentChat != 'no chat selected'">
+        <!-- TODO: add in scheduler + activity functionality -->
+        <section>
+            <button class="imgIcon"><img src="./Icons/Scheduler Icon.svg"></button>
+            <button class="imgIcon"><img src="./Icons/Activity Suggester Icon.svg"></button>
+        </section>
+        <form @submit.prevent="sendMessage($graffitiSession.value)">
+            <fieldset :disabled="sending">
+                <input type="text" v-model="message" placeholder="message" ref="messageInput" />
+                <input type="submit" :value="sending? 'sending...' : 'send'" />
+            </fieldset>
+        </form>
+    </section>
+</section>
