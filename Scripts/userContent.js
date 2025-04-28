@@ -5,7 +5,7 @@ import { ChatWindow } from "./chatWindow.js";
 
 export async function UserContent() {
   return {
-    props: ["username"],
+    props: ["username", "chatName", "channel"],
 
     components: { 
       NavBar: defineAsyncComponent(NavBar),

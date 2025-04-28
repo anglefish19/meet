@@ -11,7 +11,7 @@ const router = createRouter({
   routes: [
     { path: "/", component: GeneralContent },
     { path: "/:username", component: UserContent, props: true },
-    // { path: "/:username/:channel", component: UserContent, props: true },
+    { path: "/:username/:chatName/:channel", component: UserContent, props: true },
     // { path: "/profile", component: Profile },
     // { path: "/chat/:chatId", component: Chat, props: true },
   ],

@@ -1,5 +1,7 @@
 export async function SideBar() {
     return {
+      props: ["username"],
+      
       data() {
         return {
           chatName: "",

@@ -1,8 +1,9 @@
 export async function ChatWindow() {
     return {
+      props: ["chatName", "channel"],
+      
       data() {
         return {
-          chatName: "",
           newChatName: "",
           message: "",
           revisedMessage: "",
@@ -11,8 +12,6 @@ export async function ChatWindow() {
           sending: false,
           revising: false,
           channels: ["designftw"],
-          currentChat: "no chat selected",
-          currentChatName: "no chat selected",
           members: "",
           newMembers: "",
         };
@@ -25,11 +24,6 @@ export async function ChatWindow() {
             return;
           }
     
-          if (this.currentChat == "No Chats Selected") {
-            alert("Please select a chat first!");
-            return;
-          }
-    
           this.sending = true;
     
           await this.$graffiti.put(
@@ -38,7 +32,7 @@ export async function ChatWindow() {
                 content: this.message,
                 published: Date.now(),
               },
-              channels: [this.currentChat.channel],
+              channels: [this.channel],
             },
             session,
           );
@@ -83,10 +77,7 @@ export async function ChatWindow() {
         },
     
         async addMembers(session, channel, members) {
-          if (!channel) {
-            alert("Please select a chat first!");
-            return;
-          } else if (channel == this.currentChat.channel) {
+          if (channel == this.channel) {
             this.adding = true;
           }
     
@@ -108,7 +99,7 @@ export async function ChatWindow() {
             );
           }
     
-          if (channel == this.currentChat.channel) {
+          if (channel == this.channel) {
             this.newMembers = "";
           } else {
             this.members = "";

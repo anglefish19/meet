@@ -1,9 +1,12 @@
 <section id="chat">
     <!-- TODO: write leaveChat fxn -->
-    <h2>{{currentChatName}} <span v-if="currentChat != 'no chat selected'" class="icon" @click="leaveChat()">🚪➡️</span></h2>
+    <h2>
+        <span v-if="this.channel">{{this.chatName}} <button class="imgIcon icon" @click="leaveChat()">🚪➡️</button></span>
+        <span v-else>no chat selected</span>
+    </h2>
 
     <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }"
-        :channels="[currentChat.channel]" :schema="{
+        :channels="[this.channel]" :schema="{
                 properties: {
                     value: {
                         required: ['content', 'published'],
@@ -16,7 +19,7 @@
             }">
         <!-- currently, anyone in a chat can add people to that chat; may change later -->
         <!-- will also add members list later -->
-        <form v-if="currentChat != 'no chat selected'" @submit.prevent="addMembers($graffitiSession.value, currentChat.channel, newMembers)">
+        <form v-if="this.channel" @submit.prevent="addMembers($graffitiSession.value, this.channel, newMembers)">
             <fieldset :disabled="adding">
                 <!-- change how members are added later -->
                 <input type="text" v-model="newMembers" placeholder='chat members (separate members using ", ")' ref="newChatMembersInput" v-focus />
@@ -53,7 +56,7 @@
         </ul>
     </graffiti-discover>
 
-    <section id="sendbar" v-if="currentChat != 'no chat selected'">
+    <section id="sendbar" v-if="this.channel">
         <!-- TODO: add in scheduler + activity functionality -->
         <section>
             <button class="imgIcon"><img src="./Icons/Scheduler Icon.svg"></button>

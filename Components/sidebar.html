@@ -37,9 +37,13 @@
             <li v-if="groupChatObjects.length == 0">You're not in any chats yet. Create a chat below!</li>
             <li v-for="object of groupChatObjects.sort((a, b) => b.value.name - a.value.name)"
                 :key="object.url">
-                <span class="chat" @click="updateCurrentChat(object.value.object)">
+                <!-- <span class="chat" @click="updateCurrentChat(object.value.object)">
                     {{ object.value.object.name }}
-                </span>
+                </span> -->
+
+                <router-link class="chat" :to = "`/` + this.username + `/` + object.value.object.name + `/` + object.value.object.channel">
+                    {{ object.value.object.name }}
+                </router-link>
 
                 <section v-if="object.actor == $graffitiSession.value.actor">
                     <span class="icon" @click="revealInput($event)">

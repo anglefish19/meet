@@ -118,6 +118,7 @@ img {
 }
 
 #sendbar img {
+    filter: invert(0);
     max-width: 70%;
     margin-inline-end: 0.25em;
 }
