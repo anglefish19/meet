@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>meet</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <script type="importmap">
         {
             "imports": {
@@ -23,17 +24,18 @@
 <body>
     <div id="app">
         <header>
-            <h1>meet<span v-if="$graffitiSession.value"> | {{$graffitiSession.value.actor}}</span></h1>
+            <h1>
+                <router-link v-if="$graffitiSession.value" :to="`/` + $graffitiSession.value.actor">meet | {{$graffitiSession.value.actor}}</router-link>
+                <span v-else>meet</span>
+            </h1>
             <button v-if="!$graffitiSession.value" @click="$graffiti.login(), login()">
                 Log In
             </button>
-            <button v-else @click="$graffiti.logout($graffitiSession.value), logout()">
+            <button v-else @click="logout(), $graffiti.logout($graffitiSession.value)">
                 Log Out
             </button>
         </header>
-        <main>
-            <router-view></router-view>
-        </main>
+        <router-view></router-view>
     </div>
 </body>
 </html>

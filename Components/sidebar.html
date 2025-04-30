@@ -1,5 +1,5 @@
 <section id="sidebar">
-    <h2>{{$graffitiSession.value.actor}}'s chats</h2>
+    <h2>{{this.username}}'s chats</h2>
 
     <!-- TODO: make this only show up when the user clicks create chat button -->
     <form @submit.prevent="createChat($graffitiSession.value)">

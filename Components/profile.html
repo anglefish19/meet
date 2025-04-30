@@ -1,0 +1,35 @@
+<section class="profile">
+    <graffiti-discover v-slot="{ objects: profileObjects, isInitialPolling }"
+        :channels="[this.username]" :schema="{
+            type: 'object',
+            required: ['value'],
+            properties: {
+                value: {
+                    type: 'object',
+                    required: ['username', 'profilePic'],
+                    properties: {
+                        username: { type: 'string', enum: [this.username] },
+                        profilePic: { type: 'string' }
+                    }
+                }
+            },
+        }">
+        <div v-for="profile of profileObjects">
+            <img :src=profile.value.profilePic>
+            <h2>{{profile.value.username}}</h2>
+            <p v-if="profile.value.name">{{profile.value.name}}</p>
+            <p class="italic" v-if="profile.value.pronouns">{{profile.value.pronouns}}</p>
+            <button class="icon" @click="revealInput($event)">
+                edit profile
+            </button>
+            <form class="hiddenUnlessReveal" @submit.prevent="setProfile($event, profile)">
+                <fieldset :disabled="saving">
+                    <input type="text" placeholder="name" v-model="name">
+                    <input type="text" placeholder="pronouns" v-model="pronouns"/>
+                    <input type="submit" :value="saving? 'saving...' : 'save'" />
+                </fieldset>
+            </form>
+            <!-- <button @click="deleteAccount(profile)">Delete Account</button> -->
+        </div>
+    </graffiti-discover>
+</section>

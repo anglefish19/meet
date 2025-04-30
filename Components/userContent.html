@@ -1,3 +1,7 @@
-<NavBar></NavBar>
-<SideBar :username="username"></SideBar>
-<ChatWindow :chatName="chatName" :channel="channel"></ChatWindow>
+<main class="generalLayout">
+    <NavBar :username="username"></NavBar>
+    <section class="sideAndChatLayout">
+        <SideBar :username="username"></SideBar>
+        <ChatWindow :chatName="chatName" :channel="channel"></ChatWindow>
+    </section>
+</main>

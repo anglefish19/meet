@@ -1,5 +1,5 @@
 <section id="navbar">
-    <button class="imgIcon"><img src="./Icons/Account Icon.svg"></button>
-    <button class="imgIcon"><img src="./Icons/Calendar Icon.svg"></button>
+    <router-link :to="`/` + this.username + `/profile`"><button class="imgIcon"><img src="./Icons/Account Icon.svg"></button></router-link>
+    <router-link :to="`/` + this.username + `/calendar`"><button class="imgIcon"><img src="./Icons/Calendar Icon.svg"></button></router-link>
     <button class="imgIcon"><img src="./Icons/New Chat Icon.svg"></button>
 </section>
