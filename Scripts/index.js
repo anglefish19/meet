@@ -54,14 +54,10 @@ createApp({
 
       const entry = {
         value: {
-          type: "Profile",
-          generator: "https://anglefish19.github.io/meet/",
           username: this.$graffitiSession.value.actor,
-          name: this.$graffitiSession.value.actor,
           profilePic: "../Icons/Account Icon.svg",
-          describes: this.$graffitiSession.value.actor,
         },
-        channels: ["designftw-2025-studio1", this.$graffitiSession.value.actor],
+        channels: [this.$graffitiSession.value.actor],
       };
 
       if (profile.length == 0) {
@@ -86,8 +82,8 @@ createApp({
   },
 })
   .use(GraffitiPlugin, {
-    // graffiti: new GraffitiLocal(),
-    graffiti: new GraffitiRemote(),
+    graffiti: new GraffitiLocal(),
+    // graffiti: new GraffitiRemote(),
   })
   .use(router)
   .mount("#app");
