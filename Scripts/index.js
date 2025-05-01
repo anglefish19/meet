@@ -68,8 +68,7 @@ createApp({
         this.$graffiti.put(
           entry,
           this.$graffitiSession.value,
-        );
-        console.log(entry);
+        )
       }
     },
 
