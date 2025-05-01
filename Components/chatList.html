@@ -1,0 +1,24 @@
+<h2>{{this.username}}'s chats</h2>
+
+<graffiti-discover 
+    v-slot="{ objects: invitations, isInitialPolling }" 
+    :channels="[$graffitiSession.value.actor]"
+    :schema="this.inviteSchema">
+    
+    <ul>
+        <li v-if="isInitialPolling">Loading...</li>
+
+        <li class="text" v-else-if="invitations.length == 0">
+            You're not in any chats yet. 
+            <router-link class="chat" :to = "`/` + this.username + `/new-chat`">Create a chat to get started!</router-link>
+        </li>
+
+        <li v-for="invite of invitations.sort((a, b) => b.value.published - a.value.published)"
+            :key="invite.id">
+
+            <router-link class="chat" :to = "`/` + this.username + `/chats/` + invite.value.title + `/` + invite.value.channel">
+                <ITD :text="invite.value.title"></ITD>
+            </router-link>
+        </li>
+    </ul>
+</graffiti-discover>

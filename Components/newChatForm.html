@@ -1,0 +1,10 @@
+<h2>create new chat</h2>
+
+<form @submit.prevent="createChat()">
+    <fieldset :disabled="creating">
+        <!-- TODO: change how members are added -->
+        <input type="text" v-model="members" placeholder='chat members (separate usernames using ", ")' ref="chatMembersInput" />
+        <input type="text" v-model="newChatName" placeholder="chat name" ref="chatNameInput" />
+        <input type="submit" :value="creating? 'creating chat...' : 'create chat'" />
+    </fieldset>
+</form>

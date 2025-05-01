@@ -1,12 +1,33 @@
 <section id="chat">
-    <!-- TODO: write leaveChat fxn -->
-    <h2>
-        <span v-if="this.channel">{{this.chatName}} <button class="imgIcon icon" @click="leaveChat()">🚪➡️</button></span>
-        <span v-else>no chat selected</span>
-    </h2>
+    <graffiti-discover 
+        v-if="this.channel"
+        v-slot="{ objects: invitations, isInitialPolling }" 
+        :channels="[$graffitiSession.value.actor]"
+        :schema="chatSchema">
+        <section class="chatWindow" v-for="invite of invitations">
+            <span v-if="invite.actor === $graffitiSession.value.actor" class="toBeRevised">
+                <button class="imgIcon icon" @click="renameChat(invite)">✏️</button>
+                <button class="imgIcon icon" @click="deleteChat(invite)">🗑️</button>
+                <button class="imgIcon icon" @click="removeMember(invite, $graffitiSession.value.actor, invite.actor == $graffitiSession.value.actor)">🚪➡️</button>
+                <button @click="addMembers(invite)">Add Members</button>
+            </span>
+            <ITD :text="invite.value.title"></ITD>
 
-    <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }"
-        :channels="[this.channel]" :schema="{
+            <!-- <form @submit.prevent="addMembers(this.channel, newMembers)">
+                <fieldset :disabled="adding">
+                    <input type="text" v-model="newMembers" placeholder='chat members (separate members using ", ")'
+                        ref="newChatMembersInput" />
+                    <input type="submit" :value="adding? 'adding members...' : 'add members'" />
+                </fieldset>
+            </form> -->
+        </section>
+    </graffiti-discover>
+
+    <h2 v-else>no chat selected</h2>
+
+    
+
+    <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]" :schema="{
                 properties: {
                     value: {
                         required: ['content', 'published'],
@@ -17,15 +38,10 @@
                     }
                 }
             }">
-        <!-- currently, anyone in a chat can add people to that chat; may change later -->
-        <!-- will also add members list later -->
-        <form v-if="this.channel" @submit.prevent="addMembers($graffitiSession.value, this.channel, newMembers)">
-            <fieldset :disabled="adding">
-                <!-- change how members are added later -->
-                <input type="text" v-model="newMembers" placeholder='chat members (separate members using ", ")' ref="newChatMembersInput" v-focus />
-                <input type="submit" :value="adding? 'adding members...' : 'add members'" />
-            </fieldset>
-        </form>
+
+        <div>
+            <!-- FIX CSS LATER -->
+        </div>
 
         <ul>
             <li v-if="isInitialPolling">Loading...</li>
@@ -62,7 +78,7 @@
             <button class="imgIcon"><img src="./Icons/Scheduler Icon.svg"></button>
             <button class="imgIcon"><img src="./Icons/Activity Suggester Icon.svg"></button>
         </section>
-        <form @submit.prevent="sendMessage($graffitiSession.value)">
+        <form @submit.prevent="sendMessage()">
             <fieldset :disabled="sending">
                 <input type="text" v-model="message" placeholder="message" ref="messageInput" />
                 <input type="submit" :value="sending? 'sending...' : 'send'" />

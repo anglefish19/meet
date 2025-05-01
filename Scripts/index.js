@@ -5,18 +5,14 @@ import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
 import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
 import { UserContent } from "./userContent.js";
 import { GeneralContent } from "./generalContent.js";
-import { ProfilePage } from "./profilePage.js";
-import { Calendar } from "./calendarPage.js";
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: "/", component: GeneralContent },
-    { path: "/:username", component: UserContent, props: true },
+    { path: "/:username/:view", component: UserContent, props: true },
+    { path: "/:username/:view/:chatName/:channel", component: UserContent, props: true },
     { path: "/:username/:chatName/:channel", component: UserContent, props: true },
-    { path: "/:username/profile", component: ProfilePage, props: true },
-    { path: "/:username/calendar", component: Calendar, props: true },
-    // { path: "/chat/:chatId", component: Chat, props: true },
   ],
 });
 
@@ -26,8 +22,6 @@ createApp({
   components: {
     UserContent: defineAsyncComponent(UserContent),
     GeneralContent: defineAsyncComponent(GeneralContent),
-    ProfilePage: defineAsyncComponent(ProfilePage),
-    Calendar: defineAsyncComponent(Calendar),
   },
 
   beforeCreate() {
@@ -36,7 +30,7 @@ createApp({
 
   methods: {
     async login() {
-      router.push("/" + this.$graffitiSession.value.actor);
+      router.push("/" + this.$graffitiSession.value.actor + `/chats`);
 
       await this.setupProfile();
     },
@@ -71,10 +65,16 @@ createApp({
           entry,
           this.$graffitiSession.value,
         )
-      } else {
-        console.log(profile[0]);
       }
     },
+
+    // NOT SURE IF I'LL NEED THIS
+    copyActor() {
+      navigator.clipboard.writeText(
+          this.$graffitiSession.value.actor,
+      );
+      alert("copied!");
+  },
 
     logout() {
       router.push("/");
@@ -90,6 +90,6 @@ createApp({
 
 window.onload = function() {
   if (session.value && history.state.current == "/") {
-    router.push("/" + session.value.actor);
+    router.push("/" + session.value.actor + `/chats`);
   }
 }

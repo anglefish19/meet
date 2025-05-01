@@ -23,7 +23,7 @@ body {
 
 header {
     display: grid;
-    grid-template-columns: 1fr 7em;
+    grid-template-columns: 1fr 6em;
     background-color: var(--light);
     padding-inline: 0.5em;
     align-items: center;
@@ -75,7 +75,7 @@ div, main, .generalLayout, .sideAndChatLayout {
     grid-template-columns: 25em 1fr;
 }
 
-#navbar {
+nav {
     display: grid;
     background-color: var(--medium);
     width: 100%;
@@ -97,7 +97,8 @@ div, main, .generalLayout, .sideAndChatLayout {
 
 img {
     max-width: 70%;
-    margin-block: 1em;
+    margin-top: 0.5em;
+    margin-bottom: 0.25em;
     filter: invert(100%);
 }
 
@@ -132,7 +133,6 @@ img {
 #sendbar img {
     filter: invert(0);
     max-width: 70%;
-    margin-inline-end: 0.25em;
 }
 
 #sendbar form {
@@ -175,10 +175,6 @@ fieldset {
     padding: 5px;
 }
 
-.icon:nth-child(2) {
-    padding-inline-end: 0.75em;
-}
-
 .icon:hover {
     background-color: var(--lightST);
     cursor: pointer;
@@ -193,6 +189,18 @@ li {
     display: grid;
     grid-template-columns: 1fr 4em;
     grid-template-rows: auto auto;
+}
+
+.text {
+    display: block;
+}
+
+.text a {
+    color: var(--medium);
+}
+
+.text a:hover {
+    color: var(--lightHover);
 }
 
 li form {
@@ -241,4 +249,26 @@ li form {
 
 .italic {
     font-style: italic;
+}
+
+nav .router-link-active button {
+    background-color: var(--lightHover);
+}
+
+.centeredLayout {
+    display: grid;
+    justify-items: center;
+    grid-template-rows: min-content;
+}
+
+video {
+    max-height: 70vh;
+    margin-block: 1em;
+}
+
+.itd div, .itd h2 {
+    font-size: 16pt;
+    height: auto;
+    margin-block: 0;
+    padding: 0;
 }
