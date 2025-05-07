@@ -19,7 +19,7 @@
             <h2>{{profile.value.username}}</h2>
             <p v-if="profile.value.name">{{profile.value.name}}</p>
             <p class="italic" v-if="profile.value.pronouns">{{profile.value.pronouns}}</p>
-            <button class="icon" @click="revealInput($event)">
+            <button @click="revealInput($event)">
                 edit profile
             </button>
             <form class="hiddenUnlessReveal" @submit.prevent="setProfile($event, profile)">

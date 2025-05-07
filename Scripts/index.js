@@ -55,7 +55,7 @@ createApp({
       const entry = {
         value: {
           username: this.$graffitiSession.value.actor,
-          profilePic: "../Icons/Account Icon.svg",
+          profilePic: "../meet/Icons/Account Icon.svg",
         },
         channels: [this.$graffitiSession.value.actor],
       };
