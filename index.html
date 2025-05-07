@@ -14,6 +14,8 @@
                 "vue-router": "https://cdn.jsdelivr.net/npm/vue-router@4.5.0/dist/vue-router.esm-browser.prod.js",
                 "@graffiti-garden/implementation-local": "https://cdn.jsdelivr.net/npm/@graffiti-garden/implementation-local@0.6.4/dist/browser/index.js",
                 "@graffiti-garden/implementation-remote": "https://cdn.jsdelivr.net/npm/@graffiti-garden/implementation-remote@0.6.2/dist/browser/index.js",
+                "@graffiti-garden/wrapper-files": "https://cdn.jsdelivr.net/npm/@graffiti-garden/wrapper-files@0.0.2/dist/browser/index.js",
+                "@graffiti-garden/wrapper-files/vue": "https://cdn.jsdelivr.net/npm/@graffiti-garden/wrapper-files@0.0.2/dist/vue/index.mjs",
                 "@graffiti-garden/wrapper-vue": "https://cdn.jsdelivr.net/npm/@graffiti-garden/wrapper-vue@0.7.2/dist/browser/plugin.mjs"
             }
         }
@@ -27,6 +29,7 @@
             <h1>
                 <router-link v-if="$graffitiSession.value" :to="`/` + $graffitiSession.value.actor + `/chats`">meet | {{$graffitiSession.value.actor}}</router-link>
                 <span v-else>meet</span>
+                <router-link :to="`/profile-setup`">FOR TESTING: profile setup</router-link>
             </h1>
             <button v-if="!$graffitiSession.value" @click="$graffiti.login(), login()">
                 Log In
@@ -35,6 +38,7 @@
                 Log Out
             </button>
         </header>
+        
         <router-view></router-view>
     </div>
 </body>

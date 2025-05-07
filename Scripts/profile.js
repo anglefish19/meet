@@ -13,6 +13,8 @@ export async function Profile() {
     methods: {
       async deleteProfile(profile) {
         await this.$graffiti.delete(profile, this.$graffitiSession.value);
+        this.$router.push("/");
+        this.$graffiti.logout(this.$graffitiSession.value);
       },
 
       async setProfile(e, profile) {

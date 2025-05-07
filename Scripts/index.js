@@ -5,11 +5,13 @@ import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
 import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
 import { UserContent } from "./userContent.js";
 import { GeneralContent } from "./generalContent.js";
+import { SetupContent } from "./setupContent.js"; 
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: "/", component: GeneralContent },
+    { path: "/profile-setup", component: SetupContent },
     { path: "/:username/:view", component: UserContent, props: true },
     { path: "/:username/:view/:chatName/:channel", component: UserContent, props: true },
     { path: "/:username/:chatName/:channel", component: UserContent, props: true },
@@ -20,8 +22,9 @@ let session;
 
 createApp({
   components: {
-    UserContent: defineAsyncComponent(UserContent),
     GeneralContent: defineAsyncComponent(GeneralContent),
+    SetupContent: defineAsyncComponent(SetupContent),
+    UserContent: defineAsyncComponent(UserContent)
   },
 
   beforeCreate() {

@@ -1,0 +1,39 @@
+<main class="centeredLayout" id="profile-setup">
+    <h2>setup your profile</h2>
+
+    <img v-if="!profilePicURL" class="profilePic" src="../Icons/Account Icon.svg">
+    <graffiti-get v-else :url="profilePicURL" :schema="graffitiFileSchema" v-slot="{ object }">
+        <graffiti-object-to-file :object="object" v-slot="{ file, fileDataUrl }">
+            <p v-if="file === undefined">Loading...</p>
+            <img v-else-if="file === null || !file.type.startsWith('image/')" class="profilePic" src="../Icons/Account Icon.svg">
+            <template v-else>
+                <img :src="fileDataUrl" class="profilePic" alt="Profile Image" />
+                <!-- <p v-if="object.actor === $graffitiSession.value.actor">
+                    <button @click="$graffiti.delete(object, $graffitiSession.value)">
+                        Delete {{ file.name }}
+                    </button>
+                </p> -->
+            </template>
+        </graffiti-object-to-file>
+    </graffiti-get>
+
+    <form @submit.prevent="createProfile()">
+        <fieldset :disabled="creating">
+            <input type="text" v-model="firstName" placeholder='first name' />
+            <input type="text" v-model="lastName" placeholder="last name" />
+            <input type="text" v-model="username" placeholder="username" />
+            <!-- <article>
+                <h2>File Uploading</h2>
+
+                <form @submit.prevent="uploadFile($graffitiSession.value)"> -->
+            <label class="italic" for="profilePic">
+                upload profile photo
+            </label>
+            <input id="profilePic" type="file" accept="image/*" @change="setProfilePic" placeholder="upload image" />
+
+            <!-- </form>
+            </article> -->
+            <input type="submit" :value="creating? 'creating profile...' : 'create profile'" />
+        </fieldset>
+    </form>
+</main>
