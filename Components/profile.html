@@ -21,9 +21,7 @@
             <p class="italic" v-if="profile.value.pronouns">{{profile.value.pronouns}}</p>
             delete below?
             <button @click="deleteProfile(profile)">delete</button>
-            delete above?
             <button @click="revealInput($event)">
-                edit profile
             </button>
             <form class="hiddenUnlessReveal" @submit.prevent="setProfile($event, profile)">
                 <fieldset :disabled="saving">
