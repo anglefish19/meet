@@ -22,6 +22,7 @@
             <button @click="revealInput($event)">
                 edit profile
             </button>
+            <button @click="deleteProfile(profile)">delete</button>
             <form class="hiddenUnlessReveal" @submit.prevent="setProfile($event, profile)">
                 <fieldset :disabled="saving">
                     <input type="text" placeholder="name" v-model="name">
