@@ -20,8 +20,7 @@
             <p v-if="profile.value.name">{{profile.value.name}}</p>
             <p class="italic" v-if="profile.value.pronouns">{{profile.value.pronouns}}</p>
             <button @click="deleteProfile(profile)">delete</button>
-            <button @click="revealInput($event)">
-            </button>
+            <button @click="revealInput($event)">edit profile</button>
             <form class="hiddenUnlessReveal" @submit.prevent="setProfile($event, profile)">
                 <fieldset :disabled="saving">
                     <input type="text" placeholder="name" v-model="name">
