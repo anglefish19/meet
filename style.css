@@ -54,6 +54,7 @@ button, input[type="submit"] {
     border-style: none;
     padding-inline: 0.5em;
     width: fit-content;
+    transition: 400ms;
 }
 
 button:hover, input[type="submit"]:hover, .imgIcon:hover {
@@ -93,6 +94,7 @@ nav {
     font: inherit;
     border-radius: 0;
     appearance: none;
+    transition: 300ms;
 }
 
 img {
