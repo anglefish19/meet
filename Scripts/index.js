@@ -5,7 +5,7 @@ import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
 import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
 import { UserContent } from "./userContent.js";
 import { GeneralContent } from "./generalContent.js";
-import { SetupContent } from "./setupContent.js"; 
+import { SetupContent } from "./setupContent.js";
 
 const profileSchema = {
   properties: {
@@ -42,21 +42,29 @@ const router = createRouter({
 let session;
 
 createApp({
+  data() {
+    return {
+      username: "",
+    }
+  },
+
   components: {
     GeneralContent: defineAsyncComponent(GeneralContent),
     SetupContent: defineAsyncComponent(SetupContent),
     UserContent: defineAsyncComponent(UserContent)
   },
 
-  beforeCreate() {
-    session = this.$graffitiSession;
+  mounted() {
+    this.$graffiti.sessionEvents.addEventListener('login', () => {
+      this.setupProfile()
+    });
+
+    this.$graffiti.sessionEvents.addEventListener('logout', () => {
+      this.logout()
+    });
   },
 
   methods: {
-    async login() {
-      await this.setupProfile();
-    },
-
     async setupProfile() {
       const profiles = this.$graffiti.discover(
         // channels
@@ -76,32 +84,38 @@ createApp({
         router.push("/profile-setup");
       } else {
         const profile = profileArray[0];
+        this.username = profile.value.username;
         router.push("/" + profile.value.username + "/chats");
       }
+    },
+
+    getUsername(username) {
+      this.username = username;
     },
 
     // NOT SURE IF I'LL NEED THIS
     copyActor() {
       navigator.clipboard.writeText(
-          this.$graffitiSession.value.actor,
+        this.$graffitiSession.value.actor,
       );
       alert("copied!");
-  },
+    },
 
     logout() {
+      this.username = "";
       router.push("/");
     },
   },
 })
   .use(GraffitiPlugin, {
-    graffiti: new GraffitiLocal(),
-    // graffiti: new GraffitiRemote(),
+    // graffiti: new GraffitiLocal(),
+    graffiti: new GraffitiRemote(),
   })
   .use(router)
   .mount("#app");
 
-window.onload = function() {
-  if (session.value && history.state.current == "/") {
-    router.push("/" + session.value.actor + `/chats`);
-  }
-}
+// window.onload = function () {
+//   if (session && history.state.current == "/") {
+//     router.push("/" + session.actor + `/chats`);
+//   }
+// }

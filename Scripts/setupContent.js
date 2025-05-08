@@ -24,6 +24,8 @@ const profileSchema = {
 
 export async function SetupContent() {
   return {
+    emits: ["username"],
+
     data() {
       return {
         firstName: "",
@@ -47,6 +49,7 @@ export async function SetupContent() {
         } else {
           await this.createProfile();
         }
+        this.$emit("username", {username: this.username});
       },
 
       async getProfile() {

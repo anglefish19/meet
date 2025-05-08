@@ -27,18 +27,18 @@
     <div id="app">
         <header>
             <h1>
-                <router-link v-if="$graffitiSession.value" :to="`/` + $graffitiSession.value.actor + `/chats`">meet | {{$graffitiSession.value.actor}}</router-link>
+                <router-link v-if="this.username" :to="`/` + $graffitiSession.value.actor + `/chats`">meet | {{this.username}}</router-link>
                 <span v-else>meet</span>
             </h1>
-            <button v-if="!$graffitiSession.value" @click="$graffiti.login(), login()">
+            <button v-if="!$graffitiSession.value" @click="$graffiti.login()">
                 Log In
             </button>
-            <button v-else @click="logout(), $graffiti.logout($graffitiSession.value)">
+            <button v-else @click="$graffiti.logout($graffitiSession.value)">
                 Log Out
             </button>
         </header>
         
-        <router-view></router-view>
+        <router-view @username="getUsername"></router-view>
     </div>
 </body>
 </html>
