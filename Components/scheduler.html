@@ -1,22 +1,42 @@
-<section class="scheduler">
+<section class="scheduler-setup">
     <h2>scheduler setup</h2>
 
     <form @submit.prevent="setupScheduler()">
         <fieldset :disabled="creating">
-            <span>
-                <input type="date" />
-                <input type="date" />
-                <select id="startTime"></select>
-                <select id="endTime"></select>
-            </span>
-            <!-- <input type="text" v-model="firstName" placeholder='first name' />
-            <input type="text" v-model="lastName" placeholder="last name" />
-            <input type="text" v-model="username" placeholder="username" />
-            <label class="italic" for="profilePic">
-                upload profile photo
-            </label>
-            <input id="profilePic" type="file" accept="image/*" @change="setProfilePic" placeholder="upload image" /> -->
+            <input type="text" v-model="schedulerTitle" placeholder="name of scheduler" />
+            <table>
+                <tbody>
+                    <tr>
+                        <th><label for="startDate">From</label></th>
+                        <th><label for="endDate">To</label></th>
+                        <th><label for="startTime">From</label></th>
+                        <th><label for="endTime">To</label></th>
+                    </tr>
+                    <tr>
+                        <td><input id="startDate" type="date" v-model="startDate"/></td>
+                        <td><input id="endDate" type="date" v-model="endDate"/></td>
+                        <td><select id="startTime" v-model="startTime"></select></td>
+                        <td><select id="endTime" v-model="endTime"></select></td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- todo: add rows -->
             <input type="submit" :value="creating? 'setting up scheduler...' : 'setup scheduler'" />
         </fieldset>
     </form>
+</section>
+
+<section class="scheduler-grid">
+    <h2>{{this.schedulerTitle}}</h2>
+    <div>
+        <span class="empty"></span>
+        <section id="dateLabels">
+        </section>
+    </div>
+    <div>
+        <section id="timeLabels">
+        </section>
+        <section id="grid">
+        </section>
+    </div>
 </section>

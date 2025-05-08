@@ -73,7 +73,7 @@ createApp({
         this.logout();
       });
     }
-    
+    document.addEventListener('username', this.getUsername);
   },
 
   methods: {
