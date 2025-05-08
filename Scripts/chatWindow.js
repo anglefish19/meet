@@ -3,10 +3,20 @@ import { ITD } from "./itd.js";
 
 export async function ChatWindow() {
   return {
-    props: ["chatName", "channel"],
-
     data() {
+      const path = this.$route.path.split("/");
+      let channel = path.pop();
+      let chatName = "";
+      if (channel == "chats") {
+        channel = undefined;
+      } else {
+        chatName = path.pop();
+      }
+      
+
       return {
+        channel: channel,
+        chatName: chatName,
         newChatName: "",
         message: "",
         revisedMessage: "",
@@ -37,7 +47,7 @@ export async function ChatWindow() {
                 },
                 published: { type: "number" },
                 title: { type: "string" },
-                channel: { enum: [this.channel] },
+                channel: { enum: [channel] },
               },
             },
           },

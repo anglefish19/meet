@@ -123,8 +123,8 @@ export async function SetupContent() {
 
         await this.$graffiti.put(
           {
-            // channels: [this.$graffitiSession.value.actor],
-            channels: [this.$graffitiSession.value.actor, "designftw-2025-studio2"],
+            channels: [this.$graffitiSession.value.actor],
+            // channels: [this.$graffitiSession.value.actor, "designftw-2025-studio2"],
             value: {
               firstName: this.firstName,
               lastName: this.lastName,

@@ -5,13 +5,15 @@
         :channels="[$graffitiSession.value.actor]"
         :schema="chatSchema">
         <section class="chatWindow" v-for="invite of invitations">
-            <span v-if="invite.actor === $graffitiSession.value.actor" class="toBeRevised">
-                <button class="imgIcon icon" @click="renameChat(invite)">✏️</button>
-                <button class="imgIcon icon" @click="deleteChat(invite)">🗑️</button>
-                <button class="imgIcon icon" @click="removeMember(invite, $graffitiSession.value.actor, invite.actor == $graffitiSession.value.actor)">🚪➡️</button>
-                <button @click="addMembers(invite)">Add Members</button>
-            </span>
-            <ITD :text="invite.value.title"></ITD>
+            <h2>
+                {{invite.value.title}}
+                <span v-if="invite.actor === $graffitiSession.value.actor" class="toBeRevised">
+                    <button class="imgIcon icon" @click="renameChat(invite)">✏️</button>
+                    <button class="imgIcon icon" @click="deleteChat(invite)">🗑️</button>
+                    <!-- <button class="imgIcon icon" @click="removeMember(invite, $graffitiSession.value.actor, invite.actor == $graffitiSession.value.actor)">🚪➡️</button> -->
+                    <button @click="addMembers(invite)">Add Members</button>
+                </span>
+            </h2>
 
             <!-- <form @submit.prevent="addMembers(this.channel, newMembers)">
                 <fieldset :disabled="adding">
@@ -76,7 +78,7 @@
         <!-- TODO: add in scheduler + activity functionality -->
         <section>
             <button class="imgIcon"><img src="./Icons/Scheduler Icon.svg"></button>
-            <button class="imgIcon"><img src="./Icons/Activity Suggester Icon.svg"></button>
+            <!-- <button class="imgIcon"><img src="./Icons/Activity Suggester Icon.svg"></button> -->
         </section>
         <form @submit.prevent="sendMessage()">
             <fieldset :disabled="sending">
