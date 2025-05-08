@@ -55,13 +55,16 @@ createApp({
   },
 
   mounted() {
-    this.$graffiti.sessionEvents.addEventListener('login', () => {
-      this.setupProfile()
-    });
-
-    this.$graffiti.sessionEvents.addEventListener('logout', () => {
-      this.logout()
-    });
+    if (!this.$graffitiSession.value) {
+      this.$graffiti.sessionEvents.addEventListener('login', () => {
+        this.setupProfile()
+      });
+    } else{
+      this.$graffiti.sessionEvents.addEventListener('logout', () => {
+        this.logout()
+      });
+    }
+    
   },
 
   methods: {
@@ -90,7 +93,7 @@ createApp({
     },
 
     getUsername(username) {
-      this.username = username;
+      this.username = username["username"];
     },
 
     // NOT SURE IF I'LL NEED THIS
@@ -113,9 +116,3 @@ createApp({
   })
   .use(router)
   .mount("#app");
-
-// window.onload = function () {
-//   if (session && history.state.current == "/") {
-//     router.push("/" + session.actor + `/chats`);
-//   }
-// }
