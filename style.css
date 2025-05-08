@@ -18,7 +18,7 @@ body {
 
 #app {
     display: grid;
-    grid-template-rows: 10vh 80vh;
+    grid-template-rows: 10vh 1fr;
 }
 
 header {
@@ -282,8 +282,8 @@ video {
 
 #profile-setup {
     height: 100%;
-    margin-block-start: 2em;
-    grid-template-rows: 3em 7em 5em;
+    align-items: end;
+    grid-template-rows: 5em 7em 5em;
 }
 
 #profile-setup form {
@@ -292,10 +292,6 @@ video {
     justify-items: center;
     align-items: center;
     grid-template-rows: repeat(3, 2.5em) 2.5em 5em;
-}
-
-#profile-setup input[type="text"] {
-    margin-block: 0.5em;
 }
 
 input[type="file"] {

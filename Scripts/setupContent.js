@@ -31,77 +31,48 @@ export async function SetupContent() {
         else if (!this.username) {
           alert("Please enter a username!");
           return;
-        } else if (!this.profilePic) {
-          alert("Please upload a profile photo!");
+        } else if (!(/^\w+$/.test(this.username))) {
+          alert("A username may only contain letters, numbers, and underscores.");
           return;
         }
 
         this.creating = true;
 
-        // const channel = crypto.randomUUID(); // This creates a random string
-        // if (this.members != "") {
-        //   this.members = this.members.split(", ");
-        //   this.members.push(this.$graffitiSession.value.actor);
-        // } else {
-        //   this.members = [this.$graffitiSession.value.actor];
-        // }
+        await this.$graffiti.put(
+          {
+            channels: [this.$graffitiSession.value.actor],
+            value: {
+              firstName: this.firstName,
+              lastName: this.lastName,
+              name: this.firstName + " " + this.lastName,
+              username: this.username,
+              profilePicURL: this.profilePicURL,
 
-        // await this.$graffiti.put(
-        //   {
-        //     channels: this.members,
-        //     value: {
-        //       activity: 'Invite',
-        //       target: "Chat",
-        //       participants: this.members,
-        //       title: this.newChatName,
-        //       published: Date.now(),
-        //       channel: channel,
-        //     },
-        //     allowed: this.members,
-        //   },
-        //   this.$graffitiSession.value,
-        // );
-
-        // const chatName = this.newChatName;
+              activity: 'CreateProfile',
+              target: "Profile",
+              describes: this.$graffitiSession.value.actor,
+              created: Date.now(),
+              generator: "https://anglefish19.github.io/meet/",
+            },
+            allowed: this.members,
+          },
+          this.$graffitiSession.value,
+        );
 
         this.creating = false;
-        // this.members = "";
-        // this.newChatName = "";
 
-        // this.$router.push(`/` + this.$graffitiSession.value.actor + `/chats/` + chatName + `/` + channel);
+        this.$router.push(`/` + this.username + `/chats`);
       },
 
       async setProfilePic(event) {
+        // delete previous upload if changing picture
         if (this.profilePicURL) {
-          console.log(this.profilePicURL);
           const object = await this.$graffiti.get(
             this.profilePicURL, // url
             graffitiFileSchema // schema,
           )
           await this.$graffiti.delete(object, this.$graffitiSession.value);
-
-          console.log("deleted previous upload");
-          // const check = await this.$graffiti.get(
-          //   this.profilePicURL, // url
-          //   graffitiFileSchema // schema,
-          // )
-          // console.log(check);
-        } 
-        
-        // FOR TESTING
-        // else {
-          // const object = await this.$graffiti.get(
-          //   "graffiti:local:n8lKMHe94dOT6PS_1ge_IxbvHuwT6AxA", // url
-          //   graffitiFileSchema // schema,
-          // )
-          // console.log("previous ", object);
-          // await this.$graffiti.delete(object, this.$graffitiSession.value);
-          // const check = await this.$graffiti.get(
-          //       this.profilePicURL, // url
-          //       graffitiFileSchema // schema,
-          //     )
-          //     console.log(check);
-        // }
+        }
 
         const target = event.target;
         if (!target.files?.length) return;
@@ -121,8 +92,6 @@ export async function SetupContent() {
         } finally {
           this.profilePic = undefined;
         }
-
-        console.log("current url ", this.profilePicURL);
       }
     },
 

@@ -21,6 +21,31 @@ const router = createRouter({
 let session;
 
 createApp({
+  data() {
+    return {
+      profileSchema: {
+        properties: {
+          value: {
+            required: [
+              "name",
+              "username",
+              "describes",
+              "generator",
+              "target",
+            ],
+            properties: {
+              name: { type: "string" },
+              username: { type: "string" },
+              describes: { type: "string" },
+              generator: { enum: ["https://anglefish19.github.io/meet/"] },
+              target: { enum: ["Profile"] },
+            },
+          },
+        },
+      }
+    }
+  },
+
   components: {
     GeneralContent: defineAsyncComponent(GeneralContent),
     SetupContent: defineAsyncComponent(SetupContent),
@@ -33,41 +58,30 @@ createApp({
 
   methods: {
     async login() {
-      router.push("/" + this.$graffitiSession.value.actor + `/chats`);
-
       await this.setupProfile();
     },
 
+    // TODO: MODIFY THIS SO IT INTERFACES WITH SetupContent
     async setupProfile() {
       const profiles = this.$graffiti.discover(
+        // channels
         [this.$graffitiSession.value.actor],
-        {
-          properties: {
-            value: {
-              username: { type: "string" }
-            },
-          },
-        }
+        // schema
+        this.profileSchema
       );
 
-      const profile = [];
+      const profileArray = [];
       for await (const { object } of profiles) {
-        profile.push(object);
+        profileArray.push(object);
       }
 
-      const entry = {
-        value: {
-          username: this.$graffitiSession.value.actor,
-          profilePic: "./Icons/Account Icon.svg",
-        },
-        channels: [this.$graffitiSession.value.actor],
-      };
-
-      if (profile.length == 0) {
-        this.$graffiti.put(
-          entry,
-          this.$graffitiSession.value,
-        )
+      if (!this.$graffitiSession.value) {
+        alert("You must be logged in to continue!");
+      } else if (profileArray.length == 0) {
+        router.push("/profile-setup");
+      } else {
+        const profile = profileArray[0];
+        router.push("/" + profile.value.username + "/chats");
       }
     },
 

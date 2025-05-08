@@ -29,7 +29,6 @@
             <h1>
                 <router-link v-if="$graffitiSession.value" :to="`/` + $graffitiSession.value.actor + `/chats`">meet | {{$graffitiSession.value.actor}}</router-link>
                 <span v-else>meet</span>
-                <router-link :to="`/profile-setup`">FOR TESTING: profile setup</router-link>
             </h1>
             <button v-if="!$graffitiSession.value" @click="$graffiti.login(), login()">
                 Log In
