@@ -7,6 +7,27 @@ import { UserContent } from "./userContent.js";
 import { GeneralContent } from "./generalContent.js";
 import { SetupContent } from "./setupContent.js"; 
 
+const profileSchema = {
+  properties: {
+    value: {
+      required: [
+        "name",
+        "username",
+        "describes",
+        "generator",
+        "target",
+      ],
+      properties: {
+        name: { type: "string" },
+        username: { type: "string" },
+        describes: { type: "string" },
+        generator: { enum: ["https://anglefish19.github.io/meet/"] },
+        target: { enum: ["Profile"] },
+      },
+    },
+  }
+}
+
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
@@ -21,31 +42,6 @@ const router = createRouter({
 let session;
 
 createApp({
-  data() {
-    return {
-      profileSchema: {
-        properties: {
-          value: {
-            required: [
-              "name",
-              "username",
-              "describes",
-              "generator",
-              "target",
-            ],
-            properties: {
-              name: { type: "string" },
-              username: { type: "string" },
-              describes: { type: "string" },
-              generator: { enum: ["https://anglefish19.github.io/meet/"] },
-              target: { enum: ["Profile"] },
-            },
-          },
-        },
-      }
-    }
-  },
-
   components: {
     GeneralContent: defineAsyncComponent(GeneralContent),
     SetupContent: defineAsyncComponent(SetupContent),
@@ -67,7 +63,7 @@ createApp({
         // channels
         [this.$graffitiSession.value.actor],
         // schema
-        this.profileSchema
+        profileSchema
       );
 
       const profileArray = [];

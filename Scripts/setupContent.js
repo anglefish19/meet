@@ -1,5 +1,26 @@
-import { fileToGraffitiObject, graffitiFileSchema} from "@graffiti-garden/wrapper-files";
+import { fileToGraffitiObject, graffitiFileSchema } from "@graffiti-garden/wrapper-files";
 import { GraffitiObjectToFile } from "@graffiti-garden/wrapper-files/vue";
+
+const profileSchema = {
+  properties: {
+    value: {
+      required: [
+        "name",
+        "username",
+        "describes",
+        "generator",
+        "target",
+      ],
+      properties: {
+        name: { type: "string" },
+        username: { type: "string" },
+        describes: { type: "string" },
+        generator: { enum: ["https://anglefish19.github.io/meet/"] },
+        target: { enum: ["Profile"] },
+      },
+    },
+  }
+}
 
 export async function SetupContent() {
   return {
@@ -8,9 +29,9 @@ export async function SetupContent() {
         firstName: "",
         lastName: "",
         username: "",
+        profile: undefined,
         profilePic: undefined,
         profilePicURL: undefined,
-        profilePicObj: undefined,
         creating: false,
         graffitiFileSchema
       };
@@ -19,6 +40,63 @@ export async function SetupContent() {
     components: { GraffitiObjectToFile },
 
     methods: {
+      async setupProfile() {
+        await this.getProfile();
+        if (this.profile) {
+          await this.editProfile();
+        } else {
+          await this.createProfile();
+        }
+      },
+
+      async getProfile() {
+        const profiles = this.$graffiti.discover(
+          // channels
+          [this.$graffitiSession.value.actor],
+          // schema
+          profileSchema
+        );
+  
+        const profileArray = [];
+        for await (const { object } of profiles) {
+          profileArray.push(object);
+        }
+
+        this.profile = profileArray[0];
+      },
+
+      async editProfile() {
+        if (this.username != "" && !(/^\w+$/.test(this.username))) {
+          alert("A username may only contain letters, numbers, and underscores.");
+          return;
+        }
+        this.firstName = this.firstName ? this.firstName : this.profile.value.firstName;
+        this.lastName = this.lastName ? this.lastName : this.profile.value.lastName;
+        this.username = this.username ? this.username : this.profile.value.username;
+        this.profilePicURL = this.profilePicURL ? this.profilePicURL : this.profile.value.profilePicURL;
+
+        const patch = {
+          value: [
+            { "op": "replace", "path": "/firstName", "value": this.firstName },
+            { "op": "replace", "path": "/lastName", "value": this.lastName },
+            { "op": "replace", "path": "/name", "value": this.firstName + " " + this.lastName },
+            { "op": "replace", "path": "/username", "value": this.username },
+          ],
+        }
+
+        if (this.profilePicURL) {
+          patch[value].push({ "op": "replace", "path": "/profilePicURL", "value": this.profilePicURL });
+        }
+
+        await this.$graffiti.patch(
+          patch,
+          this.profile,
+          this.$graffitiSession.value
+        );
+
+        this.$router.push(`/` + this.username + `/profile`);
+      },
+
       async createProfile() {
         if (!this.firstName) {
           alert("Please enter your first name!");
@@ -26,7 +104,7 @@ export async function SetupContent() {
         } else if (!this.lastName) {
           alert("Please enter your last name!");
           return;
-        } 
+        }
         // TODO: ADD A CHECK TO MAKE SURE USERNAMES ARE UNIQUE
         else if (!this.username) {
           alert("Please enter a username!");
@@ -66,7 +144,7 @@ export async function SetupContent() {
 
       async setProfilePic(event) {
         // delete previous upload if changing picture
-        if (this.profilePicURL) {
+        if (this.profilePic) {
           const object = await this.$graffiti.get(
             this.profilePicURL, // url
             graffitiFileSchema // schema,

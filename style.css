@@ -276,20 +276,20 @@ video {
     margin-block: 1em;
 }
 
-#profile-setup, #profile-setup form {
+.profile-setup, .profile-setup form {
     display: grid;
+    justify-items: center;
 }
 
-#profile-setup {
+.profile-setup {
     height: 100%;
     align-items: end;
     grid-template-rows: 5em 7em 5em;
 }
 
-#profile-setup form {
+.profile-setup form {
     height: 100%;
     text-align: center;
-    justify-items: center;
     align-items: center;
     grid-template-rows: repeat(3, 2.5em) 2.5em 5em;
 }
@@ -298,11 +298,11 @@ input[type="file"] {
     display: none;
 }
 
-#profile-setup label {
+.profile-setup label {
     color: var(--medium);
 }
 
-#profile-setup label:hover {
+.profile-setup label:hover {
     color: var(--lightHover);
     cursor: pointer;
 }
