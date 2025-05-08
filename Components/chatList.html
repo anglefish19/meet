@@ -5,7 +5,7 @@
     :channels="[$graffitiSession.value.actor]"
     :schema="this.inviteSchema">
     
-    <ul>
+    <ul id="chatlist">
         <li v-if="isInitialPolling">Loading...</li>
 
         <li class="text" v-else-if="invitations.length == 0">
