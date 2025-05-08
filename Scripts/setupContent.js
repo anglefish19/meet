@@ -84,8 +84,10 @@ export async function SetupContent() {
           ],
         }
 
-        if (this.profilePicURL) {
-          patch[value].push({ "op": "replace", "path": "/profilePicURL", "value": this.profilePicURL });
+        if (this.profilePicURL && !this.profile.value.profilePicURL) {
+          patch["value"].push({ "op": "add", "path": "/profilePicURL", "value": this.profilePicURL });
+        } else if (this.profilePicURL) {
+          patch["value"].push({ "op": "replace", "path": "/profilePicURL", "value": this.profilePicURL });
         }
 
         await this.$graffiti.patch(
@@ -119,6 +121,7 @@ export async function SetupContent() {
         await this.$graffiti.put(
           {
             channels: [this.$graffitiSession.value.actor],
+            // channels: [this.$graffitiSession.value.actor, "designftw-2025-studio2"],
             value: {
               firstName: this.firstName,
               lastName: this.lastName,

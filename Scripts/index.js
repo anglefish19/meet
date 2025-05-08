@@ -57,7 +57,6 @@ createApp({
       await this.setupProfile();
     },
 
-    // TODO: MODIFY THIS SO IT INTERFACES WITH SetupContent
     async setupProfile() {
       const profiles = this.$graffiti.discover(
         // channels
