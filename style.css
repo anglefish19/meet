@@ -123,6 +123,10 @@ img {
     padding-block-start: 0.5em;
 }
 
+#sidebar h2, #sidebar h3 {
+    margin: 0;
+}
+
 #chat {
     display: grid;
     grid-template-rows: 2em 2em 1fr 4em;
@@ -329,4 +333,18 @@ input[type="file"] {
     height: auto;
     margin-block: 0;
     padding: 0;
+}
+
+.scheduler, .scheduler form {
+    display: grid;
+    justify-items: center;
+}
+
+.scheduler {
+    align-items: end;
+    grid-template-rows: 5em 12em;
+}
+
+.scheduler form {
+    grid-template-rows: min-content;
 }

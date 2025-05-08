@@ -77,7 +77,7 @@
     <section id="sendbar" v-if="this.channel">
         <!-- TODO: add in scheduler + activity functionality -->
         <section>
-            <button class="imgIcon"><img src="./Icons/Scheduler Icon.svg"></button>
+            <router-link :to="`/scheduler`"><button class="imgIcon"><img src="./Icons/Scheduler Icon.svg"></button></router-link>
             <!-- <button class="imgIcon"><img src="./Icons/Activity Suggester Icon.svg"></button> -->
         </section>
         <form @submit.prevent="sendMessage()">

@@ -6,6 +6,7 @@ import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
 import { UserContent } from "./userContent.js";
 import { GeneralContent } from "./generalContent.js";
 import { SetupContent } from "./setupContent.js";
+import { Scheduler } from "./scheduler.js";
 
 const profileSchema = {
   properties: {
@@ -36,6 +37,8 @@ const router = createRouter({
     { path: "/:username/:view", component: UserContent, props: true },
     { path: "/:username/:view/:chatName/:channel", component: UserContent, props: true },
     { path: "/:username/:chatName/:channel", component: UserContent, props: true },
+
+    { path: "/scheduler", component: Scheduler },
   ],
 });
 
@@ -51,21 +54,23 @@ createApp({
   components: {
     GeneralContent: defineAsyncComponent(GeneralContent),
     SetupContent: defineAsyncComponent(SetupContent),
-    UserContent: defineAsyncComponent(UserContent)
+    UserContent: defineAsyncComponent(UserContent),
+
+    Scheduler: defineAsyncComponent(Scheduler),
   },
 
   mounted() {
     if (!this.$graffitiSession.value) {
       this.$graffiti.sessionEvents.addEventListener('login', () => {
-        this.setupProfile()
+        this.setupProfile();
       });
       
       this.$graffiti.sessionEvents.addEventListener('logout', () => {
-        this.logout()
+        this.logout();
       });
     } else{
       this.$graffiti.sessionEvents.addEventListener('logout', () => {
-        this.logout()
+        this.logout();
       });
     }
     
@@ -92,7 +97,9 @@ createApp({
       } else {
         const profile = profileArray[0];
         this.username = profile.value.username;
-        router.push("/" + profile.value.username + "/chats");
+        if (this.$route.path == "/") {
+          router.push("/" + profile.value.username + "/chats");
+        }
       }
     },
 

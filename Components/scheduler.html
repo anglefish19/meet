@@ -1,0 +1,22 @@
+<section class="scheduler">
+    <h2>scheduler setup</h2>
+
+    <form @submit.prevent="setupScheduler()">
+        <fieldset :disabled="creating">
+            <span>
+                <input type="date" />
+                <input type="date" />
+                <select id="startTime"></select>
+                <select id="endTime"></select>
+            </span>
+            <!-- <input type="text" v-model="firstName" placeholder='first name' />
+            <input type="text" v-model="lastName" placeholder="last name" />
+            <input type="text" v-model="username" placeholder="username" />
+            <label class="italic" for="profilePic">
+                upload profile photo
+            </label>
+            <input id="profilePic" type="file" accept="image/*" @change="setProfilePic" placeholder="upload image" /> -->
+            <input type="submit" :value="creating? 'setting up scheduler...' : 'setup scheduler'" />
+        </fieldset>
+    </form>
+</section>

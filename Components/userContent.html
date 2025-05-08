@@ -4,6 +4,6 @@
     <Calendar v-else-if="this.view == 'calendar'"></Calendar>
     <section v-else class="sideAndChatLayout">
         <SideBar :username="username" :view="view" :inviteSchema="inviteSchema"></SideBar>
-        <ChatWindow :chatName="chatName" :channel="channel"></ChatWindow>
+        <ChatWindow :chatName="chatName" :channel="channel" :inviteSchema="inviteSchema"></ChatWindow>
     </section>
 </main>
