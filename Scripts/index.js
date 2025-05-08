@@ -59,6 +59,10 @@ createApp({
       this.$graffiti.sessionEvents.addEventListener('login', () => {
         this.setupProfile()
       });
+      
+      this.$graffiti.sessionEvents.addEventListener('logout', () => {
+        this.logout()
+      });
     } else{
       this.$graffiti.sessionEvents.addEventListener('logout', () => {
         this.logout()
@@ -111,8 +115,8 @@ createApp({
   },
 })
   .use(GraffitiPlugin, {
-    // graffiti: new GraffitiLocal(),
-    graffiti: new GraffitiRemote(),
+    graffiti: new GraffitiLocal(),
+    // graffiti: new GraffitiRemote(),
   })
   .use(router)
   .mount("#app");
