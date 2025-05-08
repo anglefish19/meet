@@ -5,11 +5,34 @@ import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
 import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
 import { UserContent } from "./userContent.js";
 import { GeneralContent } from "./generalContent.js";
+import { SetupContent } from "./setupContent.js";
+
+const profileSchema = {
+  properties: {
+    value: {
+      required: [
+        "name",
+        "username",
+        "describes",
+        "generator",
+        "target",
+      ],
+      properties: {
+        name: { type: "string" },
+        username: { type: "string" },
+        describes: { type: "string" },
+        generator: { enum: ["https://anglefish19.github.io/meet/"] },
+        target: { enum: ["Profile"] },
+      },
+    },
+  }
+}
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: "/", component: GeneralContent },
+    { path: "/profile-setup", component: SetupContent },
     { path: "/:username/:view", component: UserContent, props: true },
     { path: "/:username/:view/:chatName/:channel", component: UserContent, props: true },
     { path: "/:username/:chatName/:channel", component: UserContent, props: true },
@@ -19,77 +42,77 @@ const router = createRouter({
 let session;
 
 createApp({
-  components: {
-    UserContent: defineAsyncComponent(UserContent),
-    GeneralContent: defineAsyncComponent(GeneralContent),
+  data() {
+    return {
+      username: "",
+    }
   },
 
-  beforeCreate() {
-    session = this.$graffitiSession;
+  components: {
+    GeneralContent: defineAsyncComponent(GeneralContent),
+    SetupContent: defineAsyncComponent(SetupContent),
+    UserContent: defineAsyncComponent(UserContent)
+  },
+
+  mounted() {
+    if (!this.$graffitiSession.value) {
+      this.$graffiti.sessionEvents.addEventListener('login', () => {
+        this.setupProfile()
+      });
+    } else{
+      this.$graffiti.sessionEvents.addEventListener('logout', () => {
+        this.logout()
+      });
+    }
+    
   },
 
   methods: {
-    async login() {
-      router.push("/" + this.$graffitiSession.value.actor + `/chats`);
-
-      await this.setupProfile();
-    },
-
     async setupProfile() {
       const profiles = this.$graffiti.discover(
+        // channels
         [this.$graffitiSession.value.actor],
-        {
-          properties: {
-            value: {
-              username: { type: "string" }
-            },
-          },
-        }
+        // schema
+        profileSchema
       );
 
-      const profile = [];
+      const profileArray = [];
       for await (const { object } of profiles) {
-        profile.push(object);
+        profileArray.push(object);
       }
 
-      const entry = {
-        value: {
-          username: this.$graffitiSession.value.actor,
-          profilePic: "./Icons/Account Icon.svg",
-        },
-        channels: [this.$graffitiSession.value.actor],
-      };
-
-      if (profile.length == 0) {
-        this.$graffiti.put(
-          entry,
-          this.$graffitiSession.value,
-        )
+      if (!this.$graffitiSession.value) {
+        alert("You must be logged in to continue!");
+      } else if (profileArray.length == 0) {
+        router.push("/profile-setup");
+      } else {
+        const profile = profileArray[0];
+        this.username = profile.value.username;
+        router.push("/" + profile.value.username + "/chats");
       }
+    },
+
+    getUsername(username) {
+      this.username = username["username"];
     },
 
     // NOT SURE IF I'LL NEED THIS
     copyActor() {
       navigator.clipboard.writeText(
-          this.$graffitiSession.value.actor,
+        this.$graffitiSession.value.actor,
       );
       alert("copied!");
-  },
+    },
 
     logout() {
+      this.username = "";
       router.push("/");
     },
   },
 })
   .use(GraffitiPlugin, {
-    graffiti: new GraffitiLocal(),
-    // graffiti: new GraffitiRemote(),
+    // graffiti: new GraffitiLocal(),
+    graffiti: new GraffitiRemote(),
   })
   .use(router)
   .mount("#app");
-
-window.onload = function() {
-  if (session.value && history.state.current == "/") {
-    router.push("/" + session.value.actor + `/chats`);
-  }
-}

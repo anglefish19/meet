@@ -14,6 +14,8 @@
                 "vue-router": "https://cdn.jsdelivr.net/npm/vue-router@4.5.0/dist/vue-router.esm-browser.prod.js",
                 "@graffiti-garden/implementation-local": "https://cdn.jsdelivr.net/npm/@graffiti-garden/implementation-local@0.6.4/dist/browser/index.js",
                 "@graffiti-garden/implementation-remote": "https://cdn.jsdelivr.net/npm/@graffiti-garden/implementation-remote@0.6.2/dist/browser/index.js",
+                "@graffiti-garden/wrapper-files": "https://cdn.jsdelivr.net/npm/@graffiti-garden/wrapper-files@0.0.2/dist/browser/index.js",
+                "@graffiti-garden/wrapper-files/vue": "https://cdn.jsdelivr.net/npm/@graffiti-garden/wrapper-files@0.0.2/dist/vue/index.mjs",
                 "@graffiti-garden/wrapper-vue": "https://cdn.jsdelivr.net/npm/@graffiti-garden/wrapper-vue@0.7.2/dist/browser/plugin.mjs"
             }
         }
@@ -25,17 +27,18 @@
     <div id="app">
         <header>
             <h1>
-                <router-link v-if="$graffitiSession.value" :to="`/` + $graffitiSession.value.actor + `/chats`">meet | {{$graffitiSession.value.actor}}</router-link>
+                <router-link v-if="this.username" :to="`/` + $graffitiSession.value.actor + `/chats`">meet | {{this.username}}</router-link>
                 <span v-else>meet</span>
             </h1>
-            <button v-if="!$graffitiSession.value" @click="$graffiti.login(), login()">
+            <button v-if="!$graffitiSession.value" @click="$graffiti.login()">
                 Log In
             </button>
-            <button v-else @click="logout(), $graffiti.logout($graffitiSession.value)">
+            <button v-else @click="$graffiti.logout($graffitiSession.value)">
                 Log Out
             </button>
         </header>
-        <router-view></router-view>
+        
+        <router-view @username="getUsername"></router-view>
     </div>
 </body>
 </html>

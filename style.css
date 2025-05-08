@@ -104,6 +104,13 @@ img {
     filter: invert(100%);
 }
 
+.profilePic {
+    filter: invert(0);
+    width: 5em;
+    height: 5em;
+    border-radius: 2.5em;
+}
+
 #sidebar {
     border-inline-style: solid;
     border-inline-color: var(--light);
@@ -259,6 +266,7 @@ nav .router-link-active button {
 
 .centeredLayout {
     display: grid;
+    height: 100%;
     justify-items: center;
     grid-template-rows: min-content;
 }
@@ -266,6 +274,37 @@ nav .router-link-active button {
 video {
     max-height: 70vh;
     margin-block: 1em;
+}
+
+.profile-setup, .profile-setup form {
+    display: grid;
+    justify-items: center;
+}
+
+.profile-setup {
+    height: 100%;
+    align-items: end;
+    grid-template-rows: 5em 7em 5em;
+}
+
+.profile-setup form {
+    height: 100%;
+    text-align: center;
+    align-items: center;
+    grid-template-rows: repeat(3, 2.5em) 2.5em 5em;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.profile-setup label {
+    color: var(--medium);
+}
+
+.profile-setup label:hover {
+    color: var(--lightHover);
+    cursor: pointer;
 }
 
 .itd div, .itd h2 {
