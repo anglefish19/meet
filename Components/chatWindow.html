@@ -30,8 +30,12 @@
                 :key="object.url">
                 <section>
                     <strong>
-                        {{ object.value.username }}<span v-if="object.actor===$graffitiSession.value.actor">
-                            (you)</span></strong>: {{ object.value.content }}
+                        <span v-if="object.value.username">{{ object.value.username }}</span>
+                        <span v-if="object.actor===$graffitiSession.value.actor && object.value.messageType == 'text'"> (you)</span>
+                        <span v-else-if="object.value.messageType == 'scheduler'">system</span>
+                    </strong>: 
+                    <span v-if="object.value.messageType == 'scheduler'" class="italic">{{ object.value.content }}</span>
+                    <span v-else>{{ object.value.content }}</span>
                 </section>
 
                 <section v-if="object.actor == $graffitiSession.value.actor">
@@ -44,6 +48,10 @@
                     </span>
                 </section>
                 <section v-else></section>
+                
+                <section v-if="object.value.messageType == 'scheduler'">
+                    <Scheduler :schedulerTitle=object.value.title :schedulerObject='object' :offset="offset"  :schedulerSchema="schedulerSchema"></Scheduler>
+                </section>
 
                 <form class="hiddenUnlessReveal" @submit.prevent="editMessage($event, object)">
                     <input type="text" placeholder="revise above message" v-model="revisedMessage">

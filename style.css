@@ -145,7 +145,7 @@ img {
 }
 
 #chat ul {
-    height: 64vh;
+    height: 70vh;
     overflow: scroll;
 }
 
@@ -377,7 +377,7 @@ input[type="file"] {
 .scheduler-grid {
     text-align: center;
     align-items: end;
-    margin-block: 1em;
+    scale: 0.9;
     grid-template-rows: 3em min-content min-content;
 }
 
