@@ -55,7 +55,7 @@ export async function SetupContent() {
       async getProfile() {
         const profiles = this.$graffiti.discover(
           // channels
-          [this.$graffitiSession.value.actor],
+          [this.username],
           // schema
           profileSchema
         );
@@ -123,7 +123,7 @@ export async function SetupContent() {
 
         await this.$graffiti.put(
           {
-            channels: [this.$graffitiSession.value.actor],
+            channels: [this.username, "ajz-meet-profiles"],
             // channels: [this.$graffitiSession.value.actor, "designftw-2025-studio2"],
             value: {
               firstName: this.firstName,
@@ -137,8 +137,7 @@ export async function SetupContent() {
               describes: this.$graffitiSession.value.actor,
               created: Date.now(),
               generator: "https://anglefish19.github.io/meet/",
-            },
-            allowed: this.members,
+            }
           },
           this.$graffitiSession.value,
         );

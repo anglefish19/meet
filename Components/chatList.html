@@ -2,7 +2,7 @@
 
 <graffiti-discover 
     v-slot="{ objects: invitations, isInitialPolling }" 
-    :channels="[$graffitiSession.value.actor]"
+    :channels="[this.username]"
     :schema="this.inviteSchema">
     
     <ul id="chatlist">
@@ -17,8 +17,11 @@
             :key="invite.id">
 
             <router-link class="chat" :to = "`/` + this.username + `/chats/` + invite.value.title + `/` + invite.value.channel">
-                <ITD :text="invite.value.title"></ITD>
+                <h3>{{invite.value.title}}</h3>
             </router-link>
+            <span v-if="invite.actor === $graffitiSession.value.actor" class="toBeRevised">
+                <button class="imgIcon icon" @click="deleteChat(invite)">🗑️</button>
+            </span>
         </li>
     </ul>
 </graffiti-discover>

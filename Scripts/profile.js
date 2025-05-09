@@ -28,6 +28,21 @@ export async function Profile() {
       //   }
       //   console.log(orphansArray);
       // },
+      async checkProfiles() {
+        const profiles = this.$graffiti.discover(
+          // channels
+          ["ajz-meet-profiles"],
+          // schema
+          this.profileSchema
+        );
+  
+        const profileArray = [];
+        for await (const { object } of profiles) {
+          profileArray.push(object);
+        }
+  
+        console.log(profileArray);
+      },
 
       async deleteProfile(profile) {
         await this.$graffiti.delete(profile, this.$graffitiSession.value);
@@ -79,7 +94,7 @@ export async function Profile() {
       async revealInput(e) {
         const profiles = this.$graffiti.discover(
           // channels
-          [this.$graffitiSession.value.actor],
+          [this.username],
           // schema
           this.profileSchema
         );

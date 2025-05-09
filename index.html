@@ -27,7 +27,7 @@
     <div id="app">
         <header>
             <h1>
-                <router-link v-if="this.username" :to="`/` + $graffitiSession.value.actor + `/chats`">meet | {{this.username}}</router-link>
+                <router-link v-if="this.username" :to="`/` + this.username + `/chats`">meet | {{this.username}}</router-link>
                 <span v-else>meet</span>
             </h1>
             <button v-if="!$graffitiSession.value" @click="$graffiti.login()">
@@ -38,7 +38,7 @@
             </button>
         </header>
         
-        <router-view @username="getUsername"></router-view>
+        <router-view></router-view>
     </div>
 </body>
 </html>

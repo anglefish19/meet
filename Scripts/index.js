@@ -6,6 +6,7 @@ import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
 import { UserContent } from "./userContent.js";
 import { GeneralContent } from "./generalContent.js";
 import { SetupContent } from "./setupContent.js";
+// import { Scheduler } from "./scheduler.js";
 
 const profileSchema = {
   properties: {
@@ -36,6 +37,8 @@ const router = createRouter({
     { path: "/:username/:view", component: UserContent, props: true },
     { path: "/:username/:view/:chatName/:channel", component: UserContent, props: true },
     { path: "/:username/:chatName/:channel", component: UserContent, props: true },
+
+    // { path: "/scheduler", component: Scheduler },
   ],
 });
 
@@ -51,31 +54,33 @@ createApp({
   components: {
     GeneralContent: defineAsyncComponent(GeneralContent),
     SetupContent: defineAsyncComponent(SetupContent),
-    UserContent: defineAsyncComponent(UserContent)
+    UserContent: defineAsyncComponent(UserContent),
+
+    // Scheduler: defineAsyncComponent(Scheduler),
   },
 
   mounted() {
     if (!this.$graffitiSession.value) {
       this.$graffiti.sessionEvents.addEventListener('login', () => {
-        this.setupProfile()
+        this.setupProfile();
       });
       
       this.$graffiti.sessionEvents.addEventListener('logout', () => {
-        this.logout()
+        this.logout();
       });
     } else{
       this.$graffiti.sessionEvents.addEventListener('logout', () => {
-        this.logout()
+        this.logout();
       });
     }
-    
+    document.addEventListener('username', this.getUsername);
   },
 
   methods: {
     async setupProfile() {
       const profiles = this.$graffiti.discover(
         // channels
-        [this.$graffitiSession.value.actor],
+        ["ajz-meet-profiles"],
         // schema
         profileSchema
       );
@@ -90,9 +95,15 @@ createApp({
       } else if (profileArray.length == 0) {
         router.push("/profile-setup");
       } else {
-        const profile = profileArray[0];
-        this.username = profile.value.username;
-        router.push("/" + profile.value.username + "/chats");
+        const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
+        if (profile) {
+          this.username = profile.value.username;
+          if (this.$route.path == "/") {
+            router.push("/" + profile.value.username + "/chats");
+          }
+        } else {
+          router.push("/profile-setup");
+        }
       }
     },
 
