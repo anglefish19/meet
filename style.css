@@ -446,3 +446,14 @@ input[type="file"] {
     pointer-events: none;
     border: 1px solid var(--green);
 }
+
+.revealScheduler {
+    display: grid;
+    position: absolute;
+    width: 67vw;
+    height: 70%;
+    margin-top: 3em;
+    justify-self: center;
+    background-color: white;
+    overflow: scroll;
+}

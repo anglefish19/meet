@@ -1,5 +1,7 @@
 export async function NewChatForm() {
     return {
+      props: ["username"],
+
       data() {
         return {
           newChatName: "",
@@ -20,9 +22,9 @@ export async function NewChatForm() {
           const channel = crypto.randomUUID(); // This creates a random string
           if (this.members != "") {
             this.members = this.members.split(", ");
-            this.members.push(this.$graffitiSession.value.actor);
+            this.members.push(this.username);
           } else {
-            this.members = [this.$graffitiSession.value.actor];
+            this.members = [this.username];
           }
 
           await this.$graffiti.put(
@@ -47,7 +49,7 @@ export async function NewChatForm() {
           this.members = "";
           this.newChatName = "";
 
-          this.$router.push(`/` + this.$graffitiSession.value.actor + `/chats/` + chatName + `/` + channel);
+          this.$router.push(`/` + this.username + `/chats/` + chatName + `/` + channel);
         },
       },
 

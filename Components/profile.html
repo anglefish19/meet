@@ -2,7 +2,7 @@
     <!-- TODO: DELETE COMMENT (for debugging only) -->
     <!-- <button @click="recoverOrphans()"></button> -->
     <graffiti-discover v-slot="{ objects: profileObjects, isInitialPolling }"
-        :channels="[this.$graffitiSession.value.actor]" :schema="this.profileSchema">
+        :channels="[this.username]" :schema="this.profileSchema">
         <div v-for="profile of profileObjects">
             <img v-if="!profile.value.profilePicURL" class="profilePic" src="../Icons/Account Icon.svg">
             <graffiti-get v-else :url="profile.value.profilePicURL" :schema="graffitiFileSchema" v-slot="{ object }">
@@ -21,6 +21,7 @@
             </graffiti-get>
             <h2>{{profile.value.username}}</h2>
             <p>{{profile.value.name}}</p>
+            <button @click="checkProfiles()">check</button>
             <button @click="deleteProfile(profile)">delete</button>
             <router-link :to="`/profile-setup`"><button>edit profile</button></router-link>
         </div>
