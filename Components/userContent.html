@@ -3,7 +3,7 @@
     <Profile v-if="this.view == 'profile'" :profileSchema="profileSchema" :username="username"></Profile>
     <Calendar v-else-if="this.view == 'calendar'"></Calendar>
     <section v-else class="sideAndChatLayout">
-        <SideBar :username="username" :view="view" :inviteSchema="inviteSchema"></SideBar>
+        <SideBar :username="username" :view="view" :inviteSchema="inviteSchema" :profileSchema="profileSchema"></SideBar>
         <ChatWindow :username="username" :chatName="chatName" :channel="channel" :inviteSchema="inviteSchema" :profileSchema="profileSchema"></ChatWindow>
     </section>
 </main>

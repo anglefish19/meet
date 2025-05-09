@@ -69,6 +69,7 @@ export async function ChatWindow() {
         },
 
         // SCHEDULER STUFF
+        chatMembers: [],
         offset: offset * 60 * 1000,
         today: today,
         minDate: today.toISOString().split('T')[0],
@@ -100,6 +101,8 @@ export async function ChatWindow() {
     // },
 
     mounted() {
+      this.getMembers();
+
       function createOption(value, text) {
         const option = document.createElement('option');
         option.text = text;
@@ -242,6 +245,7 @@ export async function ChatWindow() {
             value: {
               content: this.message,
               published: Date.now(),
+              username: this.username,
             },
             channels: [this.channel],
           },
@@ -452,109 +456,130 @@ export async function ChatWindow() {
         });
 
         // put scheduler object in chat channel
-        await this.$graffiti.put(
-          {
-            value: {
-              content: this.username + " sent a scheduler!",
-              published: Date.now(),
-
-
-            },
-            channels: [this.channel],
-            allowed: []
+        const scheduler = await this.$graffiti.put(
+        {
+          value: {
+            content: this.username + " sent a scheduler!",
+            published: Date.now(),
+            creator: this.username,
+            startTime: this.startTime,
+            endTime: this.endTime,
+            startDate: this.startDate,
+            endDate: this.endDate,
+            title: this.title
           },
-          this.$graffitiSession.value,
-        );
+          channels: [this.channel],
+          allowed: allowed
+        },
+        this.$graffitiSession.value,
+      );
+      console.log(scheduler);
+      console.log(scheduler.url);
 
-        // put availability object in scheduler channel
-        // await this.$graffiti.put(
-        //   {
-        //     channels: [this.username, this.channel,],
-        //     value: {
-        //       firstName: this.firstName,
-        //       lastName: this.lastName,
-        //       name: this.firstName + " " + this.lastName,
-        //       username: this.username,
-        //       profilePicURL: this.profilePicURL,
+      // put availability object in scheduler channel
+      // await this.$graffiti.put(
+      //   {
+      //     channels: [this.username, this.channel,],
+      //     value: {
+      //       firstName: this.firstName,
+      //       lastName: this.lastName,
+      //       name: this.firstName + " " + this.lastName,
+      //       username: this.username,
+      //       profilePicURL: this.profilePicURL,
 
-        //       activity: 'CreateProfile',
-        //       target: "Profile",
-        //       describes: this.$graffitiSession.value.actor,
-        //       created: Date.now(),
-        //       generator: "https://anglefish19.github.io/meet/",
-        //     }
-        //   },
-        //   this.$graffitiSession.value,
-        // );
-      },
+      //       activity: 'CreateProfile',
+      //       target: "Profile",
+      //       describes: this.$graffitiSession.value.actor,
+      //       created: Date.now(),
+      //       generator: "https://anglefish19.github.io/meet/",
+      //     }
+      //   },
+      //   this.$graffitiSession.value,
+      // );
+    },
 
-      // given date, return next date
-      getNextDate(givenDate) {
-        return new Date(givenDate.getTime() + 24 * 60 * 60 * 1000);
-      },
+    // given date, return next date
+    getNextDate(givenDate) {
+      return new Date(givenDate.getTime() + 24 * 60 * 60 * 1000);
+    },
 
-      getDateString(date) {
-        return (date.getUTCMonth() + 1) + "/" + date.getUTCDate();
-      },
+    getDateString(date) {
+      return (date.getUTCMonth() + 1) + "/" + date.getUTCDate();
+    },
 
-      startDrag(e, cell) {
-        this.isDragging = true;
+    startDrag(e, cell) {
+      this.isDragging = true;
+      cell.classList.toggle('selected');
+      this.initialSelected = cell.classList.contains('selected');
+      this.startX = e.pageX;
+      this.startY = e.pageY;
+
+      this.dragBox = document.createElement('div');
+      this.dragBox.classList.add('dragging-area');
+      this.dragBox.style.left = `${this.startX}px`;
+      this.dragBox.style.top = `${this.startY}px`;
+      this.dragBox.style.width = `1px`;
+      this.dragBox.style.height = `1px`;
+      document.body.appendChild(this.dragBox);
+    },
+
+    toggleCell(cell) {
+      const isSelected = cell.classList.contains('selected');
+      if (isSelected != this.initialSelected) {
         cell.classList.toggle('selected');
-        this.initialSelected = cell.classList.contains('selected');
-        this.startX = e.pageX;
-        this.startY = e.pageY;
-
-        this.dragBox = document.createElement('div');
-        this.dragBox.classList.add('dragging-area');
-        this.dragBox.style.left = `${this.startX}px`;
-        this.dragBox.style.top = `${this.startY}px`;
-        this.dragBox.style.width = `1px`;
-        this.dragBox.style.height = `1px`;
-        document.body.appendChild(this.dragBox);
-      },
-
-      toggleCell(cell) {
-        const isSelected = cell.classList.contains('selected');
-        if (isSelected != this.initialSelected) {
-          cell.classList.toggle('selected');
-        }
-      },
-
-      clearAll() {
-        document.querySelectorAll('.grid-cell').forEach(cell => {
-          cell.classList.remove('selected');
-        });
-      },
-
-      toggleScheduler() {
-        // reset scheduler if necessary
-        if (!document.querySelector('.scheduler').classList.contains("revealScheduler") && 
-            document.querySelector(".scheduler-grid").classList.contains("reveal")) {
-          this.toggleSchedulerContent();
-        }
-        document.querySelector('.scheduler').classList.toggle("revealScheduler");
-      },
-
-      toggleSchedulerContent() {
-        document.querySelector(".scheduler-setup").classList.toggle("reveal");
-        document.querySelector(".scheduler-grid").classList.toggle("reveal");
-      },
-
-      async getUsernameFromActor() {
-        const profiles = this.$graffiti.discover(
-          // channels
-          ["ajz-meet-profiles"],
-          // schema
-          this.profileSchema
-        );
-        const profileArray = [];
-        for await (const { object } of profiles) {
-          profileArray.push(object);
-        }
-        const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
-        return profile.value.username;
       }
     },
+
+    clearAll() {
+      document.querySelectorAll('.grid-cell').forEach(cell => {
+        cell.classList.remove('selected');
+      });
+    },
+
+    toggleScheduler() {
+      // reset scheduler if necessary
+      if (!document.querySelector('.scheduler').classList.contains("revealScheduler") &&
+        document.querySelector(".scheduler-grid").classList.contains("reveal")) {
+        this.toggleSchedulerContent();
+      }
+      document.querySelector('.scheduler').classList.toggle("revealScheduler");
+    },
+
+    toggleSchedulerContent() {
+      document.querySelector(".scheduler-setup").classList.toggle("reveal");
+      document.querySelector(".scheduler-grid").classList.toggle("reveal");
+    },
+
+    async getUsernameFromActor() {
+      const profiles = this.$graffiti.discover(
+        // channels
+        ["ajz-meet-profiles"],
+        // schema
+        this.profileSchema
+      );
+      const profileArray = [];
+      for await (const { object } of profiles) {
+        profileArray.push(object);
+      }
+      const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
+      return profile.value.username;
+    },
+
+    async getMembers() {
+      const userChats = this.$graffiti.discover(
+        [this.username], // channels
+        this.chatSchema // schema
+      );
+      const chatsArray = [];
+      for await (const { object } of userChats) {
+        chatsArray.push(object);
+      }
+      const chat = chatsArray.filter(c => c.value.channel == this.channel)[0];
+      if (chat) {
+        chat.value.participants.map(m => this.chatMembers.push(m));
+      }
+    },
+  },
 
     template: await fetch("./Components/chatWindow.html").then((r) => r.text()),
   };
