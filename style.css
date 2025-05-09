@@ -351,7 +351,10 @@ input[type="file"] {
     padding: 0;
 }
 
-.scheduler-setup,
+.scheduler-setup {
+    justify-items: center;
+}
+
 .scheduler-setup form {
     display: grid;
     justify-items: center;
@@ -373,13 +376,19 @@ input[type="file"] {
 
 .scheduler-grid {
     text-align: center;
+    align-items: end;
     margin-block: 1em;
+    grid-template-rows: 3em min-content min-content;
 }
 
 .scheduler-grid, #grid, #dateLabels {
-    display: grid;
     justify-content: center;
+    justify-items: center;
     gap: 4px;
+}
+
+#dateLabels {
+    display: grid;
 }
 
 #timeLabels {
@@ -391,10 +400,16 @@ input[type="file"] {
 .scheduler-grid div {
     display: grid;
     grid-template-columns: 75px 1fr 75px;
-    gap: 10px
+    gap: 10px;
+}
+
+.scheduler-grid button {
+    height: 28pt;
+    margin-bottom: 1em;
 }
 
 #grid {
+    display: grid;
     padding-block-end: 1em;
 }
 
@@ -418,6 +433,6 @@ input[type="file"] {
     transition: background-color 0.3s;
 }
 
-.grid-cell:hover {
+.grid-cell:hover, .selected {
     background-color: var(--green);
 }

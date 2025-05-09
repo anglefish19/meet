@@ -1,4 +1,4 @@
-<section class="scheduler-setup">
+<section class="scheduler-setup hiddenUnlessReveal reveal">
     <h2>scheduler setup</h2>
 
     <form @submit.prevent="setupScheduler()">
@@ -13,8 +13,8 @@
                         <th><label for="endTime">To</label></th>
                     </tr>
                     <tr>
-                        <td><input id="startDate" type="date" v-model="startDate"/></td>
-                        <td><input id="endDate" type="date" v-model="endDate"/></td>
+                        <td><input id="startDate" type="date" v-model="startDate" min="minDate"/></td>
+                        <td><input id="endDate" type="date" v-model="endDate" min="minDate"/></td>
                         <td><select id="startTime" v-model="startTime"></select></td>
                         <td><select id="endTime" v-model="endTime"></select></td>
                     </tr>
@@ -26,7 +26,7 @@
     </form>
 </section>
 
-<section class="scheduler-grid">
+<section class="scheduler-grid hiddenUnlessReveal">
     <h2>{{this.schedulerTitle}}</h2>
     <div>
         <span class="empty"></span>
@@ -39,4 +39,8 @@
         <section id="grid">
         </section>
     </div>
+    <span>
+        <button id="clearButton" @click="clearAll">clear availability</button>
+        <button>send scheduler</button>
+    </span>
 </section>

@@ -7,12 +7,20 @@ export async function Scheduler() {
       const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
       const weekFromTomorrow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
       return {
+        today: today,
+        minDate: today.toISOString().split('T')[0],
         schedulerTitle: "",
         startDate: tomorrow.toISOString().split('T')[0],
         endDate: weekFromTomorrow.toISOString().split('T')[0],
         startTime: "",
         endTime: "",
         creating: false,
+        isDragging: false,
+        initialSelected: false,
+        timeMouseDown: undefined,
+        startX: undefined,
+        startY: undefined,
+        dragBox: undefined
       };
     },
 
@@ -47,14 +55,23 @@ export async function Scheduler() {
         const comparativeST = new Date(this.startDate);
         const comparativeET = new Date(this.endDate);
 
+        if (comparativeST < this.today) {
+          alert("You can't make a scheduler with dates already in the past.");
+          return;
+        }
+
+        document.querySelectorAll(".hiddenUnlessReveal").forEach(e => {
+          e.classList.toggle("reveal")
+        });
+
         const schedulerGrid = document.getElementById('grid');
 
         // Set rows & columns
         const numRows = this.endTime - this.startTime;
         const numCols = (comparativeET - comparativeST) / (1000 * 60 * 60 * 24) + 1;
 
-        if (numCols <= 0) {
-          alert("Entered dates are invalid — second date must be after first date!");
+        if (numCols < 0) {
+          alert("Entered dates are invalid — the second date cannot happen before the first date!");
           return;
         } else if (numRows <= 0) {
           alert("Entered times are invalid — second time must be greater than first!");
@@ -77,6 +94,8 @@ export async function Scheduler() {
         for (let i = 0; i < numRows * numCols; i++) {
           const cell = document.createElement('div');
           cell.classList.add('grid-cell');
+          cell.addEventListener('mousedown', () => this.toggleCell(cell));
+          cell.addEventListener('dragstart', (e) => e.preventDefault());
           schedulerGrid.appendChild(cell);
         }
 
@@ -103,6 +122,23 @@ export async function Scheduler() {
 
           timeLabels.appendChild(label);
         }
+
+        // Add functionality
+        const clearButton = document.getElementById('clearButton');
+
+        schedulerGrid.addEventListener('mousemove', (e) => {
+          if (this.isDragging) {
+            const target = document.elementFromPoint(e.clientX, e.clientY);
+            if (target && target.classList.contains('grid-cell')) {
+              this.toggleCell(target);
+            }
+          }
+        });
+        document.addEventListener('mouseup', () => {
+          if (performance.now() - this.mouseDownTime > 4) {
+            this.isDragging = false;
+          }
+        });
       },
 
       // given date, return next date
@@ -112,6 +148,30 @@ export async function Scheduler() {
 
       getDateString(date) {
         return (date.getUTCMonth() + 1) + "/" + date.getUTCDate();
+      },
+
+      // startDrag(cell) {
+
+      // }
+
+      toggleCell(cell) {
+        if (!this.isDragging) {
+          this.mouseDownTime = performance.now();
+          cell.classList.toggle('selected');
+          this.initialSelected = cell.classList.contains('selected');
+          this.isDragging = true;
+        } else {
+          const isSelected = cell.classList.contains('selected');
+          if (isSelected !== this.initialSelected) {
+            cell.classList.toggle('selected');
+          }
+        }
+      },
+
+      clearAll() {
+        document.querySelectorAll('.grid-cell').forEach(cell => {
+          cell.classList.remove('selected');
+        });
       }
     },
 

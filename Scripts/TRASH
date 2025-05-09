@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive When2Meet Style Grid">
+  <title>Interactive When2Meet Style Grid</title>
+  <style>
+    body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #2d2d2d; }
+    #grid-container { display: grid; grid-template-columns: repeat(20, 20px); gap: 1px; }
+    .grid-cell { width: 20px; height: 20px; background-color: #f0f0f0; cursor: pointer; transition: background-color 0.2s; }
+    .selected { background-color: #4caf50; }
+  </style>
+</head>
+<body>
+
+<div>
+  <button id="clearButton">Clear Selections</button>
+</div>
+<div id="grid-container"></div>
+
+<script>
+const gridContainer = document.getElementById('grid-container');
+const clearButton = document.getElementById('clearButton');
+let isDragging = false;
+
+// Create a 20x20 grid
+for (let i = 0; i < 400; i++) {
+  const cell = document.createElement('div');
+  cell.classList.add('grid-cell');
+  cell.addEventListener('mousedown', () => toggleCell(cell));
+  cell.addEventListener('mouseover', () => { if (isDragging) toggleCell(cell); });
+  gridContainer.appendChild(cell);
+}
+
+// Toggle cell selection
+function toggleCell(cell) {
+  cell.classList.toggle('selected');
+}
+
+// Drag selection
+document.addEventListener('mousedown', () => isDragging = true);
+document.addEventListener('mouseup', () => isDragging = false);
+
+// Clear grid
+clearButton.addEventListener('click', () => {
+  document.querySelectorAll('.grid-cell').forEach(cell => {
+    cell.classList.remove('selected');
+  });
+});
+</script>
+
+</body>
+</html>

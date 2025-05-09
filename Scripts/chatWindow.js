@@ -20,7 +20,6 @@ export async function ChatWindow() {
         newChatName: "",
         message: "",
         revisedMessage: "",
-        creating: false,
         adding: false,
         sending: false,
         revising: false,
