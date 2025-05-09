@@ -55,7 +55,7 @@ export async function SetupContent() {
       async getProfile() {
         const profiles = this.$graffiti.discover(
           // channels
-          [this.username],
+          ["ajz-meet-profiles"],
           // schema
           profileSchema
         );
@@ -65,12 +65,15 @@ export async function SetupContent() {
           profileArray.push(object);
         }
 
-        this.profile = profileArray[0];
+        this.profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
       },
 
       async editProfile() {
         if (this.username != "" && !(/^\w+$/.test(this.username))) {
           alert("A username may only contain letters, numbers, and underscores.");
+          return;
+        } else if (this.username != "" &&  await this.checkIfTaken(this.username)) {
+          alert("Sorry, this username is already taken.");
           return;
         }
         this.firstName = this.firstName ? this.firstName : this.profile.value.firstName;
@@ -109,13 +112,17 @@ export async function SetupContent() {
         } else if (!this.lastName) {
           alert("Please enter your last name!");
           return;
-        }
-        // TODO: ADD A CHECK TO MAKE SURE USERNAMES ARE UNIQUE
-        else if (!this.username) {
+        } else if (!this.username) {
           alert("Please enter a username!");
           return;
         } else if (!(/^\w+$/.test(this.username))) {
           alert("A username may only contain letters, numbers, and underscores.");
+          return;
+        }
+
+        // check if username is already used
+        if (await this.checkIfTaken(this.username)) {
+          alert("Sorry, this username is already taken.");
           return;
         }
 
@@ -145,6 +152,21 @@ export async function SetupContent() {
         this.creating = false;
 
         this.$router.push(`/` + this.username + `/chats`);
+      },
+
+      async checkIfTaken(username) {
+        const profiles = this.$graffiti.discover(
+          // channels
+          ["ajz-meet-profiles"],
+          // schema
+          profileSchema
+        );
+        const profileArray = [];
+        for await (const { object } of profiles) {
+          profileArray.push(object);
+        }
+        const profile = profileArray.filter(p => p.value.username == username);
+        return profile.length != 0;
       },
 
       async setProfilePic(event) {

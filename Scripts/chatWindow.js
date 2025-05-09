@@ -57,7 +57,15 @@ export async function ChatWindow() {
         },
 
         messageSchema: {
-
+          properties: {
+            value: {
+              required: ['content', 'published'],
+              properties: {
+                content: { type: 'string' },
+                published: { type: 'number' }
+              }
+            }
+          }
         },
 
         // SCHEDULER STUFF
@@ -325,9 +333,7 @@ export async function ChatWindow() {
           return;
         }
 
-        document.querySelectorAll(".hiddenUnlessReveal").forEach(e => {
-          e.classList.toggle("reveal")
-        });
+        this.toggleSchedulerContent();
 
         const schedulerGrid = document.getElementById('grid');
 
@@ -371,7 +377,7 @@ export async function ChatWindow() {
         for (let i = 0; i < numCols; i++) {
           const label = document.createElement('h3');
           label.textContent = this.getDateString(current);
-          this.availability[i+1] = {
+          this.availability[i + 1] = {
             date: current,
             hours: {}
           };
@@ -416,13 +422,13 @@ export async function ChatWindow() {
             document.querySelectorAll('.grid-cell').forEach(cell => {
               const rect = cell.getBoundingClientRect();
               const cellInBox = rect.right >= Math.min(this.startX, this.dragBox.getBoundingClientRect().left) &&
-                                rect.left <= Math.max(this.startX, this.dragBox.getBoundingClientRect().right) &&
-                                rect.bottom + window.scrollY >= Math.min(this.startY, this.dragBox.getBoundingClientRect().top + window.scrollY) &&
-                                rect.top + window.scrollY <= Math.max(this.startY, this.dragBox.getBoundingClientRect().bottom + window.scrollY);
-        
+                rect.left <= Math.max(this.startX, this.dragBox.getBoundingClientRect().right) &&
+                rect.bottom + window.scrollY >= Math.min(this.startY, this.dragBox.getBoundingClientRect().top + window.scrollY) &&
+                rect.top + window.scrollY <= Math.max(this.startY, this.dragBox.getBoundingClientRect().bottom + window.scrollY);
+
               if (cellInBox) this.toggleCell(cell);
             });
-        
+
             this.dragBox.remove();
             this.dragBox = undefined;
             this.isDragging = false;
@@ -444,6 +450,42 @@ export async function ChatWindow() {
           this.availability[rowNum]["hours"][this.startTime + Math.floor((cellCount - 1) / divisor)] = cell.classList.contains('selected');
           cellCount++;
         });
+
+        // put scheduler object in chat channel
+        await this.$graffiti.put(
+          {
+            value: {
+              content: this.username + " sent a scheduler!",
+              published: Date.now(),
+
+
+            },
+            channels: [this.channel],
+            allowed: []
+          },
+          this.$graffitiSession.value,
+        );
+
+        // put availability object in scheduler channel
+        // await this.$graffiti.put(
+        //   {
+        //     channels: [this.username, this.channel,],
+        //     value: {
+        //       firstName: this.firstName,
+        //       lastName: this.lastName,
+        //       name: this.firstName + " " + this.lastName,
+        //       username: this.username,
+        //       profilePicURL: this.profilePicURL,
+
+        //       activity: 'CreateProfile',
+        //       target: "Profile",
+        //       describes: this.$graffitiSession.value.actor,
+        //       created: Date.now(),
+        //       generator: "https://anglefish19.github.io/meet/",
+        //     }
+        //   },
+        //   this.$graffitiSession.value,
+        // );
       },
 
       // given date, return next date
@@ -485,7 +527,32 @@ export async function ChatWindow() {
       },
 
       toggleScheduler() {
+        // reset scheduler if necessary
+        if (!document.querySelector('.scheduler').classList.contains("revealScheduler") && 
+            document.querySelector(".scheduler-grid").classList.contains("reveal")) {
+          this.toggleSchedulerContent();
+        }
         document.querySelector('.scheduler').classList.toggle("revealScheduler");
+      },
+
+      toggleSchedulerContent() {
+        document.querySelector(".scheduler-setup").classList.toggle("reveal");
+        document.querySelector(".scheduler-grid").classList.toggle("reveal");
+      },
+
+      async getUsernameFromActor() {
+        const profiles = this.$graffiti.discover(
+          // channels
+          ["ajz-meet-profiles"],
+          // schema
+          this.profileSchema
+        );
+        const profileArray = [];
+        for await (const { object } of profiles) {
+          profileArray.push(object);
+        }
+        const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
+        return profile.value.username;
       }
     },
 
