@@ -93,6 +93,23 @@ export async function ChatWindow() {
           //   }
           // }
         },
+        schedulerSchema: {
+          properties: {
+            value: {
+              required: ['content', 'published', 'creator', 'startTime', 'endTime', 'startDate', 'endDate', 'title'],
+              properties: {
+                content: { type: 'string' },
+                published: { type: 'number' },
+                creator: { type: 'string' },
+                startTime: { type: 'number' },
+                endTime: { type: 'number' },
+                startDate: { type: 'string' },
+                endDate: { type: 'string' },
+                title: { type: 'string' }
+              }
+            }
+          }
+        },
       };
     },
 
@@ -456,130 +473,135 @@ export async function ChatWindow() {
         });
 
         // put scheduler object in chat channel
-        const scheduler = await this.$graffiti.put(
-        {
-          value: {
-            content: this.username + " sent a scheduler!",
-            published: Date.now(),
-            creator: this.username,
-            startTime: this.startTime,
-            endTime: this.endTime,
-            startDate: this.startDate,
-            endDate: this.endDate,
-            title: this.title
-          },
-          channels: [this.channel],
-          allowed: allowed
-        },
-        this.$graffitiSession.value,
-      );
-      console.log(scheduler);
-      console.log(scheduler.url);
+        // const scheduler = await this.$graffiti.put(
+        //   {
+        //     value: {
+        //       content: this.username + " sent a scheduler!",
+        //       published: Date.now(),
+        //       creator: this.username,
+        //       startTime: this.startTime,
+        //       endTime: this.endTime,
+        //       startDate: this.startDate,
+        //       endDate: this.endDate,
+        //       title: this.schedulerTitle
+        //     },
+        //     channels: [this.channel],
+        //     // allowed: allowed
+        //   },
+        //   this.$graffitiSession.value,
+        // );
+        // console.log(scheduler);
+        // graffiti:local:L1nxxM99iGzDmt3zmpIqpRbXzlqZpz0e
+        // console.log(scheduler.url);
+        const scheduler = await this.$graffiti.get("graffiti:local:L1nxxM99iGzDmt3zmpIqpRbXzlqZpz0e", this.schedulerSchema);
+        // const scheduler = await this.$graffiti.delete("graffiti:local:L1nxxM99iGzDmt3zmpIqpRbXzlqZpz0e", this.$graffitiSession.value);
+        console.log(scheduler);
 
-      // put availability object in scheduler channel
-      // await this.$graffiti.put(
-      //   {
-      //     channels: [this.username, this.channel,],
-      //     value: {
-      //       firstName: this.firstName,
-      //       lastName: this.lastName,
-      //       name: this.firstName + " " + this.lastName,
-      //       username: this.username,
-      //       profilePicURL: this.profilePicURL,
 
-      //       activity: 'CreateProfile',
-      //       target: "Profile",
-      //       describes: this.$graffitiSession.value.actor,
-      //       created: Date.now(),
-      //       generator: "https://anglefish19.github.io/meet/",
-      //     }
-      //   },
-      //   this.$graffitiSession.value,
-      // );
-    },
+        // put availability object in scheduler channel
+        // await this.$graffiti.put(
+        //   {
+        //     channels: [this.username, this.channel,],
+        //     value: {
+        //       firstName: this.firstName,
+        //       lastName: this.lastName,
+        //       name: this.firstName + " " + this.lastName,
+        //       username: this.username,
+        //       profilePicURL: this.profilePicURL,
 
-    // given date, return next date
-    getNextDate(givenDate) {
-      return new Date(givenDate.getTime() + 24 * 60 * 60 * 1000);
-    },
+        //       activity: 'CreateProfile',
+        //       target: "Profile",
+        //       describes: this.$graffitiSession.value.actor,
+        //       created: Date.now(),
+        //       generator: "https://anglefish19.github.io/meet/",
+        //     }
+        //   },
+        //   this.$graffitiSession.value,
+        // );
+      },
 
-    getDateString(date) {
-      return (date.getUTCMonth() + 1) + "/" + date.getUTCDate();
-    },
+      // given date, return next date
+      getNextDate(givenDate) {
+        return new Date(givenDate.getTime() + 24 * 60 * 60 * 1000);
+      },
 
-    startDrag(e, cell) {
-      this.isDragging = true;
-      cell.classList.toggle('selected');
-      this.initialSelected = cell.classList.contains('selected');
-      this.startX = e.pageX;
-      this.startY = e.pageY;
+      getDateString(date) {
+        return (date.getUTCMonth() + 1) + "/" + date.getUTCDate();
+      },
 
-      this.dragBox = document.createElement('div');
-      this.dragBox.classList.add('dragging-area');
-      this.dragBox.style.left = `${this.startX}px`;
-      this.dragBox.style.top = `${this.startY}px`;
-      this.dragBox.style.width = `1px`;
-      this.dragBox.style.height = `1px`;
-      document.body.appendChild(this.dragBox);
-    },
-
-    toggleCell(cell) {
-      const isSelected = cell.classList.contains('selected');
-      if (isSelected != this.initialSelected) {
+      startDrag(e, cell) {
+        this.isDragging = true;
         cell.classList.toggle('selected');
-      }
-    },
+        this.initialSelected = cell.classList.contains('selected');
+        this.startX = e.pageX;
+        this.startY = e.pageY;
 
-    clearAll() {
-      document.querySelectorAll('.grid-cell').forEach(cell => {
-        cell.classList.remove('selected');
-      });
-    },
+        this.dragBox = document.createElement('div');
+        this.dragBox.classList.add('dragging-area');
+        this.dragBox.style.left = `${this.startX}px`;
+        this.dragBox.style.top = `${this.startY}px`;
+        this.dragBox.style.width = `1px`;
+        this.dragBox.style.height = `1px`;
+        document.body.appendChild(this.dragBox);
+      },
 
-    toggleScheduler() {
-      // reset scheduler if necessary
-      if (!document.querySelector('.scheduler').classList.contains("revealScheduler") &&
-        document.querySelector(".scheduler-grid").classList.contains("reveal")) {
-        this.toggleSchedulerContent();
-      }
-      document.querySelector('.scheduler').classList.toggle("revealScheduler");
-    },
+      toggleCell(cell) {
+        const isSelected = cell.classList.contains('selected');
+        if (isSelected != this.initialSelected) {
+          cell.classList.toggle('selected');
+        }
+      },
 
-    toggleSchedulerContent() {
-      document.querySelector(".scheduler-setup").classList.toggle("reveal");
-      document.querySelector(".scheduler-grid").classList.toggle("reveal");
-    },
+      clearAll() {
+        document.querySelectorAll('.grid-cell').forEach(cell => {
+          cell.classList.remove('selected');
+        });
+      },
 
-    async getUsernameFromActor() {
-      const profiles = this.$graffiti.discover(
-        // channels
-        ["ajz-meet-profiles"],
-        // schema
-        this.profileSchema
-      );
-      const profileArray = [];
-      for await (const { object } of profiles) {
-        profileArray.push(object);
-      }
-      const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
-      return profile.value.username;
-    },
+      toggleScheduler() {
+        // reset scheduler if necessary
+        if (!document.querySelector('.scheduler').classList.contains("revealScheduler") &&
+          document.querySelector(".scheduler-grid").classList.contains("reveal")) {
+          this.toggleSchedulerContent();
+        }
+        document.querySelector('.scheduler').classList.toggle("revealScheduler");
+      },
 
-    async getMembers() {
-      const userChats = this.$graffiti.discover(
-        [this.username], // channels
-        this.chatSchema // schema
-      );
-      const chatsArray = [];
-      for await (const { object } of userChats) {
-        chatsArray.push(object);
-      }
-      const chat = chatsArray.filter(c => c.value.channel == this.channel)[0];
-      if (chat) {
-        chat.value.participants.map(m => this.chatMembers.push(m));
-      }
+      toggleSchedulerContent() {
+        document.querySelector(".scheduler-setup").classList.toggle("reveal");
+        document.querySelector(".scheduler-grid").classList.toggle("reveal");
+      },
+
+      async getUsernameFromActor() {
+        const profiles = this.$graffiti.discover(
+          // channels
+          ["ajz-meet-profiles"],
+          // schema
+          this.profileSchema
+        );
+        const profileArray = [];
+        for await (const { object } of profiles) {
+          profileArray.push(object);
+        }
+        const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
+        return profile.value.username;
+      },
+
+      async getMembers() {
+        const userChats = this.$graffiti.discover(
+          [this.username], // channels
+          this.chatSchema // schema
+        );
+        const chatsArray = [];
+        for await (const { object } of userChats) {
+          chatsArray.push(object);
+        }
+        const chat = chatsArray.filter(c => c.value.channel == this.channel)[0];
+        if (chat) {
+          chat.value.participants.map(m => this.chatMembers.push(m));
+        }
+      },
     },
-  },
 
     template: await fetch("./Components/chatWindow.html").then((r) => r.text()),
   };
