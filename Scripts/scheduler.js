@@ -94,7 +94,7 @@ export async function Scheduler() {
         for (let i = 0; i < numRows * numCols; i++) {
           const cell = document.createElement('div');
           cell.classList.add('grid-cell');
-          cell.addEventListener('mousedown', () => this.toggleCell(cell));
+          cell.addEventListener('mousedown', (e) => this.startDrag(e, cell));
           cell.addEventListener('dragstart', (e) => e.preventDefault());
           schedulerGrid.appendChild(cell);
         }
@@ -126,16 +126,41 @@ export async function Scheduler() {
         // Add functionality
         const clearButton = document.getElementById('clearButton');
 
-        schedulerGrid.addEventListener('mousemove', (e) => {
+        document.addEventListener('mousemove', (e) => {
           if (this.isDragging) {
-            const target = document.elementFromPoint(e.clientX, e.clientY);
-            if (target && target.classList.contains('grid-cell')) {
-              this.toggleCell(target);
-            }
+            const currentX = e.pageX;
+            const currentY = e.pageY;
+
+            this.dragBox.style.width = `${Math.abs(currentX - this.startX)}px`;
+            this.dragBox.style.height = `${Math.abs(currentY - this.startY)}px`;
+            this.dragBox.style.left = `${Math.min(this.startX, currentX)}px`;
+            this.dragBox.style.top = `${Math.min(this.startY, currentY)}px`;
           }
         });
+
         document.addEventListener('mouseup', () => {
-          if (performance.now() - this.mouseDownTime > 4) {
+          console.log(this.dragBox.getBoundingClientRect());
+          console.log(this.startX);
+          console.log(this.startY);
+          if (this.isDragging) {
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+              const rect = cell.getBoundingClientRect();
+              const cellInBox = rect.right >= Math.min(this.startX, this.dragBox.getBoundingClientRect().left) &&
+                                rect.left <= Math.max(this.startX, this.dragBox.getBoundingClientRect().right) &&
+                                rect.bottom + window.scrollY >= Math.min(this.startY, this.dragBox.getBoundingClientRect().top + window.scrollY) &&
+                                rect.top + window.scrollY <= Math.max(this.startY, this.dragBox.getBoundingClientRect().bottom + window.scrollY);
+        
+              if (cellInBox) this.toggleCell(cell);
+            });
+        
+            this.dragBox.remove();
+            this.dragBox = undefined;
+            this.isDragging = false;
+            this.startX = undefined;
+            this.startY = undefined;
+          }
+
+          if (this.isDragging && performance.now() - this.mouseDownTime > 4) {
             this.isDragging = false;
           }
         });
@@ -150,21 +175,28 @@ export async function Scheduler() {
         return (date.getUTCMonth() + 1) + "/" + date.getUTCDate();
       },
 
-      // startDrag(cell) {
+      startDrag(e, cell) {
+        console.log("cell: ", cell);
+        console.log("target: ", e.target);
+        this.isDragging = true;
+        cell.classList.toggle('selected');
+        this.initialSelected = cell.classList.contains('selected');
+        this.startX = e.pageX;
+        this.startY = e.pageY;
 
-      // }
+        this.dragBox = document.createElement('div');
+        this.dragBox.classList.add('dragging-area');
+        this.dragBox.style.left = `${this.startX}px`;
+        this.dragBox.style.top = `${this.startY}px`;
+        this.dragBox.style.width = `1px`;
+        this.dragBox.style.height = `1px`;
+        document.body.appendChild(this.dragBox);
+      },
 
       toggleCell(cell) {
-        if (!this.isDragging) {
-          this.mouseDownTime = performance.now();
+        const isSelected = cell.classList.contains('selected');
+        if (isSelected != this.initialSelected) {
           cell.classList.toggle('selected');
-          this.initialSelected = cell.classList.contains('selected');
-          this.isDragging = true;
-        } else {
-          const isSelected = cell.classList.contains('selected');
-          if (isSelected !== this.initialSelected) {
-            cell.classList.toggle('selected');
-          }
         }
       },
 

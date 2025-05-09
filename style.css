@@ -381,7 +381,9 @@ input[type="file"] {
     grid-template-rows: 3em min-content min-content;
 }
 
-.scheduler-grid, #grid, #dateLabels {
+.scheduler-grid,
+#grid,
+#dateLabels {
     justify-content: center;
     justify-items: center;
     gap: 4px;
@@ -433,6 +435,14 @@ input[type="file"] {
     transition: background-color 0.3s;
 }
 
-.grid-cell:hover, .selected {
+.grid-cell:hover,
+.selected {
     background-color: var(--green);
+}
+
+.dragging-area {
+    position: absolute;
+    background: rgba(136, 200, 169, 0.2);
+    pointer-events: none;
+    border: 1px solid var(--green);
 }
