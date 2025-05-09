@@ -1,12 +1,12 @@
 export async function Scheduler() {
   return {
     data() {
-      let today = new Date();
+      const today = new Date();
       const offset = today.getTimezoneOffset();
-      today = new Date(today.getTime() - (offset * 60 * 1000));
       const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
       const weekFromTomorrow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
       return {
+        offset: offset * 60 * 1000,
         today: today,
         minDate: today.toISOString().split('T')[0],
         schedulerTitle: "",
@@ -20,7 +20,15 @@ export async function Scheduler() {
         timeMouseDown: undefined,
         startX: undefined,
         startY: undefined,
-        dragBox: undefined
+        dragBox: undefined,
+        availability: {
+          // colnum: {
+          //   date: Date,
+          //   hours: {
+          //     hour (1-24): true / false (true = available from i to i+1)
+          //   }
+          // }
+        },
       };
     },
 
@@ -52,8 +60,8 @@ export async function Scheduler() {
 
     methods: {
       setupScheduler() {
-        const comparativeST = new Date(this.startDate);
-        const comparativeET = new Date(this.endDate);
+        const comparativeST = new Date((new Date(this.startDate)).getTime() + this.offset);
+        const comparativeET = new Date((new Date(this.endDate)).getTime() + this.offset);
 
         if (comparativeST < this.today) {
           alert("You can't make a scheduler with dates already in the past.");
@@ -106,6 +114,10 @@ export async function Scheduler() {
         for (let i = 0; i < numCols; i++) {
           const label = document.createElement('h3');
           label.textContent = this.getDateString(current);
+          this.availability[i+1] = {
+            date: current,
+            hours: {}
+          };
           dateLabels.appendChild(label);
           current = this.getNextDate(current);
         }
@@ -119,6 +131,10 @@ export async function Scheduler() {
           let text = i > 12 ? i - 12 : i;
           text += (i >= 12 && i < 24) ? " PM" : " AM";
           label.textContent = text;
+
+          if (i != this.endTime) {
+            Object.keys(this.availability).map(k => this.availability[k]["hours"][i] = false);
+          }
 
           timeLabels.appendChild(label);
         }
@@ -139,9 +155,6 @@ export async function Scheduler() {
         });
 
         document.addEventListener('mouseup', () => {
-          console.log(this.dragBox.getBoundingClientRect());
-          console.log(this.startX);
-          console.log(this.startY);
           if (this.isDragging) {
             document.querySelectorAll('.grid-cell').forEach(cell => {
               const rect = cell.getBoundingClientRect();
@@ -166,6 +179,16 @@ export async function Scheduler() {
         });
       },
 
+      async sendScheduler() {
+        let cellCount = 1;
+        const divisor = Object.keys(this.availability).length;
+        document.querySelectorAll('.grid-cell').forEach(cell => {
+          const rowNum = cellCount % divisor == 0 ? divisor : cellCount % divisor;
+          this.availability[rowNum]["hours"][this.startTime + Math.floor((cellCount - 1) / divisor)] = cell.classList.contains('selected');
+          cellCount++;
+        });
+      },
+
       // given date, return next date
       getNextDate(givenDate) {
         return new Date(givenDate.getTime() + 24 * 60 * 60 * 1000);
@@ -176,8 +199,6 @@ export async function Scheduler() {
       },
 
       startDrag(e, cell) {
-        console.log("cell: ", cell);
-        console.log("target: ", e.target);
         this.isDragging = true;
         cell.classList.toggle('selected');
         this.initialSelected = cell.classList.contains('selected');
