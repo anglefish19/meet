@@ -4,7 +4,7 @@ import { NewChatForm } from "./newChatForm.js";
 
 export async function SideBar() {
     return {
-      props: ["username", "view", "inviteSchema"],
+      props: ["username", "view", "inviteSchema", "profileSchema"],
       
       components: { 
         ChatList: defineAsyncComponent(ChatList),

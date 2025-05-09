@@ -1,32 +1,4 @@
-<!-- <section class="scheduler-setup hiddenUnlessReveal reveal">
-    <h2>scheduler setup</h2>
-
-    <form @submit.prevent="setupScheduler()">
-        <fieldset :disabled="creating">
-            <input type="text" v-model="schedulerTitle" placeholder="name of scheduler" />
-            <table>
-                <tbody>
-                    <tr>
-                        <th><label for="startDate">From</label></th>
-                        <th><label for="endDate">To</label></th>
-                        <th><label for="startTime">From</label></th>
-                        <th><label for="endTime">To</label></th>
-                    </tr>
-                    <tr>
-                        <td><input id="startDate" type="date" v-model="startDate" min="minDate"/></td>
-                        <td><input id="endDate" type="date" v-model="endDate" min="minDate"/></td>
-                        <td><select id="startTime" v-model="startTime"></select></td>
-                        <td><select id="endTime" v-model="endTime"></select></td>
-                    </tr>
-                </tbody>
-            </table> -->
-            <!-- todo: add rows -->
-            <!-- <input type="submit" :value="creating? 'setting up scheduler...' : 'setup scheduler'" />
-        </fieldset>
-    </form>
-</section>
-
-<section class="scheduler-grid hiddenUnlessReveal">
+<section class="scheduler-grid" id="this.schedulerObject.url">
     <h2>{{this.schedulerTitle}}</h2>
     <div>
         <span class="empty"></span>
@@ -40,7 +12,7 @@
         </section>
     </div>
     <span>
-        <button id="clearButton" @click="clearAll">clear availability</button>
-        <button @click="sendScheduler">send scheduler</button>
+        <button id="clearButton" @click="resetUserAvailability">clear availability</button>
+        <button @click="saveAvailability">save availability</button>
     </span>
-</section> -->
+</section>

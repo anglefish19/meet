@@ -1,5 +1,5 @@
-// import { defineAsyncComponent } from "vue";
-// import { ITD } from "./itd.js";
+import { defineAsyncComponent } from "vue";
+import { Scheduler } from "./scheduler.js";
 
 export async function ChatWindow() {
   return {
@@ -57,10 +57,20 @@ export async function ChatWindow() {
         },
 
         messageSchema: {
-
+          properties: {
+            value: {
+              required: ['content', 'published', 'messageType'],
+              properties: {
+                content: { type: 'string' },
+                messageType: { type: 'string' },
+                published: { type: 'number' }
+              }
+            }
+          }
         },
 
         // SCHEDULER STUFF
+        chatMembers: [],
         offset: offset * 60 * 1000,
         today: today,
         minDate: today.toISOString().split('T')[0],
@@ -84,14 +94,34 @@ export async function ChatWindow() {
           //   }
           // }
         },
+        schedulerSchema: {
+          properties: {
+            value: {
+              required: ['content', 'published', 'creator', 'startTime', 'endTime', 'startDate', 'endDate', 'title', 'messageType'],
+              properties: {
+                content: { type: 'string' },
+                published: { type: 'number' },
+                creator: { type: 'string' },
+                startTime: { type: 'number' },
+                endTime: { type: 'number' },
+                startDate: { type: 'string' },
+                endDate: { type: 'string' },
+                title: { type: 'string' },
+                messageType: { type: 'string' }
+              }
+            }
+          }
+        },
       };
     },
 
-    // components: {
-    //   ITD: defineAsyncComponent(ITD),
-    // },
+    components: {
+      Scheduler: defineAsyncComponent(Scheduler),
+    },
 
     mounted() {
+      this.getMembers();
+
       function createOption(value, text) {
         const option = document.createElement('option');
         option.text = text;
@@ -234,6 +264,8 @@ export async function ChatWindow() {
             value: {
               content: this.message,
               published: Date.now(),
+              username: this.username,
+              messageType: "text"
             },
             channels: [this.channel],
           },
@@ -279,37 +311,6 @@ export async function ChatWindow() {
         await this.$graffiti.delete(messageObject, this.$graffitiSession.value);
       },
 
-      // async addMembers(channel, members) {
-      //   if (channel == this.channel) {
-      //     this.adding = true;
-      //   }
-
-      //   if (members) {
-      //     members = members.split(", ");
-      //   }
-
-      //   for (const member of members) {
-      //     await this.$graffiti.put(
-      //       {
-      //         value: {
-      //           activity: 'Add',
-      //           object: member,
-      //           target: channel,
-      //         },
-      //         channels: this.channels,
-      //       },
-      //       this.$graffitiSession.value,
-      //     );
-      //   }
-
-      //   if (channel == this.channel) {
-      //     this.newMembers = "";
-      //   } else {
-      //     this.members = "";
-      //   }
-      //   this.adding = false;
-      // },
-
       revealInput(e) {
         e.target.closest("li").lastElementChild.classList.toggle("reveal");
         e.target.closest("li").lastElementChild.firstElementChild.focus();
@@ -325,9 +326,7 @@ export async function ChatWindow() {
           return;
         }
 
-        document.querySelectorAll(".hiddenUnlessReveal").forEach(e => {
-          e.classList.toggle("reveal")
-        });
+        this.toggleSchedulerContent();
 
         const schedulerGrid = document.getElementById('grid');
 
@@ -371,7 +370,7 @@ export async function ChatWindow() {
         for (let i = 0; i < numCols; i++) {
           const label = document.createElement('h3');
           label.textContent = this.getDateString(current);
-          this.availability[i+1] = {
+          this.availability[i + 1] = {
             date: current,
             hours: {}
           };
@@ -416,13 +415,13 @@ export async function ChatWindow() {
             document.querySelectorAll('.grid-cell').forEach(cell => {
               const rect = cell.getBoundingClientRect();
               const cellInBox = rect.right >= Math.min(this.startX, this.dragBox.getBoundingClientRect().left) &&
-                                rect.left <= Math.max(this.startX, this.dragBox.getBoundingClientRect().right) &&
-                                rect.bottom + window.scrollY >= Math.min(this.startY, this.dragBox.getBoundingClientRect().top + window.scrollY) &&
-                                rect.top + window.scrollY <= Math.max(this.startY, this.dragBox.getBoundingClientRect().bottom + window.scrollY);
-        
+                rect.left <= Math.max(this.startX, this.dragBox.getBoundingClientRect().right) &&
+                rect.bottom + window.scrollY >= Math.min(this.startY, this.dragBox.getBoundingClientRect().top + window.scrollY) &&
+                rect.top + window.scrollY <= Math.max(this.startY, this.dragBox.getBoundingClientRect().bottom + window.scrollY);
+
               if (cellInBox) this.toggleCell(cell);
             });
-        
+
             this.dragBox.remove();
             this.dragBox = undefined;
             this.isDragging = false;
@@ -444,6 +443,51 @@ export async function ChatWindow() {
           this.availability[rowNum]["hours"][this.startTime + Math.floor((cellCount - 1) / divisor)] = cell.classList.contains('selected');
           cellCount++;
         });
+
+        // put scheduler object in chat channel
+        const tempScheduler = await this.$graffiti.put(
+          {
+            value: {
+              content: this.username + " sent a scheduler!",
+              published: Date.now(),
+              creator: this.username,
+              startTime: this.startTime,
+              endTime: this.endTime,
+              startDate: this.startDate,
+              endDate: this.endDate,
+              title: this.schedulerTitle,
+              messageType: "scheduler"
+            },
+            channels: [this.channel],
+            // allowed: allowed
+          },
+          this.$graffitiSession.value,
+        );
+
+        // TODO: DELETE LATER
+        // console.log("temp: ", tempScheduler);
+        console.log("URL: ", tempScheduler.url);
+        // graffiti:local:-drUGRGp2AzMXM1bpaXFNd9yHuWKmNPQ
+        // const actualScheduler = await this.$graffiti.get(tempScheduler.url, this.schedulerSchema);
+        // const scheduler = await this.$graffiti.delete("graffiti:local:ozznes7kS2I_iqXLK2ZDKHV8LjrUf0F2", this.$graffitiSession.value);
+        // console.log("actual: ", actualScheduler);
+
+        // put availability object in scheduler channel
+        await this.$graffiti.put(
+          {
+            channels: [tempScheduler.url],
+            value: {
+              activity: 'FillScheduler',
+              target: "Scheduler",
+              username: this.username,
+              availability: this.availability,
+              created: Date.now(),
+              lastEdited: Date.now(),
+            }
+          },
+          this.$graffitiSession.value,
+        );
+        this.toggleScheduler();
       },
 
       // given date, return next date
@@ -485,8 +529,48 @@ export async function ChatWindow() {
       },
 
       toggleScheduler() {
+        // reset scheduler if necessary
+        if (!document.querySelector('.scheduler').classList.contains("revealScheduler") &&
+          document.querySelector(".scheduler-grid").classList.contains("reveal")) {
+          this.toggleSchedulerContent();
+        }
         document.querySelector('.scheduler').classList.toggle("revealScheduler");
-      }
+      },
+
+      toggleSchedulerContent() {
+        document.querySelector(".scheduler-setup").classList.toggle("reveal");
+        document.querySelector(".scheduler-grid").classList.toggle("reveal");
+      },
+
+      async getUsernameFromActor() {
+        const profiles = this.$graffiti.discover(
+          // channels
+          ["ajz-meet-profiles"],
+          // schema
+          this.profileSchema
+        );
+        const profileArray = [];
+        for await (const { object } of profiles) {
+          profileArray.push(object);
+        }
+        const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
+        return profile.value.username;
+      },
+
+      async getMembers() {
+        const userChats = this.$graffiti.discover(
+          [this.username], // channels
+          this.chatSchema // schema
+        );
+        const chatsArray = [];
+        for await (const { object } of userChats) {
+          chatsArray.push(object);
+        }
+        const chat = chatsArray.filter(c => c.value.channel == this.channel)[0];
+        if (chat) {
+          chat.value.participants.map(m => this.chatMembers.push(m));
+        }
+      },
     },
 
     template: await fetch("./Components/chatWindow.html").then((r) => r.text()),

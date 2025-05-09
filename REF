@@ -1,0 +1,37 @@
+// PUT STRUCTURE
+await this.$graffiti.put(
+    {
+        channels: [this.username, "ajz-meet-profiles"],
+        // channels: [this.$graffitiSession.value.actor, "designftw-2025-studio2"],
+        value: {
+            firstName: this.firstName,
+            lastName: this.lastName,
+            name: this.firstName + " " + this.lastName,
+            username: this.username,
+            profilePicURL: this.profilePicURL,
+
+            activity: 'CreateProfile',
+            target: "Profile",
+            describes: this.$graffitiSession.value.actor,
+            created: Date.now(),
+            generator: "https://anglefish19.github.io/meet/",
+        }
+    },
+    this.$graffitiSession.value,
+);
+
+// GET USERNAME GIVEN ACTOR
+async getUsernameFromActor() {
+    const profiles = this.$graffiti.discover(
+      // channels
+      ["ajz-meet-profiles"],
+      // schema
+      this.profileSchema
+    );
+    const profileArray = [];
+    for await (const { object } of profiles) {
+      profileArray.push(object);
+    }
+    const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
+    return profile.value.username;
+  }
