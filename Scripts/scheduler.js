@@ -130,7 +130,7 @@ export async function Scheduler() {
 
         document.addEventListener('mouseup', () => {
           if (this.isDragging) {
-            document.querySelectorAll('.grid-cell').forEach(cell => {
+            schedulerGrid.querySelectorAll('.grid-cell').forEach(cell => {
               const rect = cell.getBoundingClientRect();
               const cellInBox = rect.right >= Math.min(this.startX, this.dragBox.getBoundingClientRect().left) &&
                 rect.left <= Math.max(this.startX, this.dragBox.getBoundingClientRect().right) &&
@@ -153,10 +153,11 @@ export async function Scheduler() {
         });
       },
 
+      // TODO: fix put / patch issue
       async saveAvailability() {
         let cellCount = 1;
         const divisor = Object.keys(this.availability).length;
-        document.querySelectorAll('.grid-cell').forEach(cell => {
+        document.querySelectorAll('.sentSchedulerGrid .individual-scheduler')[this.index].querySelectorAll('.grid-cell').forEach(cell => {
           const rowNum = cellCount % divisor == 0 ? divisor : cellCount % divisor;
           this.availability[rowNum]["hours"][this.startTime + Math.floor((cellCount - 1) / divisor)] = cell.classList.contains('selected');
           cellCount++;
@@ -245,7 +246,7 @@ export async function Scheduler() {
       },
 
       resetUserAvailability() {
-        document.querySelectorAll('.grid-cell').forEach(cell => {
+        document.querySelectorAll('.sentSchedulerGrid .individual-scheduler')[this.index].querySelectorAll('.grid-cell').forEach(cell => {
             cell.classList.remove('selected');
         });
       }
