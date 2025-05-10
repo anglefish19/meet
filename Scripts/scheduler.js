@@ -1,6 +1,6 @@
 export async function Scheduler() {
   return {
-    props: ['schedulerTitle', 'schedulerObject', 'offset', 'schedulerSchema'],
+    props: ['schedulerTitle', 'schedulerObject', 'offset'],
 
     data() {
       return {
@@ -8,7 +8,34 @@ export async function Scheduler() {
         endTime: undefined,
         startDate: undefined,
         endDate: undefined,
-        availability: {}
+        availability: {},
+
+        // value: {
+        //   activity: 'FillScheduler',
+        //   target: "Scheduler",
+        //   username: this.username,
+        //   availability: this.availability,
+        //   created: Date.now(),
+        //   lastEdited: Date.now(),
+        // }
+        availabilitySchema: {
+          properties: {
+            value: {
+              required: ['activity', 'target', 'username', 'availability', 'created', 'lastEdited'],
+              properties: {
+                activity: { enum: ["FillScheduler"] },
+                target: { type: 'st' },
+                creator: { type: 'string' },
+                startTime: { type: 'number' },
+                endTime: { type: 'number' },
+                startDate: { type: 'string' },
+                endDate: { type: 'string' },
+                title: { type: 'string' },
+                messageType: { type: 'string' }
+              }
+            }
+          }
+        }
       };
     },
 
@@ -134,45 +161,49 @@ export async function Scheduler() {
           // channels
           [this.schedulerObject.url],
           // schema
-          this.schedulerSchema
+          // this.availabilitySchema
+          {}
         );
         const availabilitiesArray = [];
         for await (const { object } of availabilities) {
           availabilitiesArray.push(object);
         }
+        // const availability = availabilitiesArray.filter(a => a.actor == this.$graffitiSession.value.actor)[0];
+        console.log(availabilitiesArray);
         const availability = availabilitiesArray.filter(a => a.actor == this.$graffitiSession.value.actor)[0];
 
-        if (availability) {
-          const patch = {
-            value: [
-              { "op": "replace", "path": "/lastEdited", "value": Date.now() },
-              { "op": "replace", "path": "/availability", "value": this.availability },
-            ],
-          }
 
-          await this.$graffiti.patch(
-            patch,
-            availability,
-            this.$graffitiSession.value,
-          );
-          console.log("patched");
-        } else {
-          await this.$graffiti.put(
-            {
-              channels: [this.schedulerObject.url],
-              value: {
-                activity: 'FillScheduler',
-                target: "Scheduler",
-                username: this.username,
-                availability: this.availability,
-                created: Date.now(),
-                lastEdited: Date.now(),
-              }
-            },
-            this.$graffitiSession.value,
-          );
-          console.log("put");
-        }
+        // if (availability) {
+        //   const patch = {
+        //     value: [
+        //       { "op": "replace", "path": "/lastEdited", "value": Date.now() },
+        //       { "op": "replace", "path": "/availability", "value": this.availability },
+        //     ],
+        //   }
+
+        //   await this.$graffiti.patch(
+        //     patch,
+        //     availability,
+        //     this.$graffitiSession.value,
+        //   );
+        //   console.log("patched");
+        // } else {
+        //   await this.$graffiti.put(
+        //     {
+        //       channels: [this.schedulerObject.url],
+        //       value: {
+        //         activity: 'FillScheduler',
+        //         target: "Scheduler",
+        //         username: this.username,
+        //         availability: this.availability,
+        //         created: Date.now(),
+        //         lastEdited: Date.now(),
+        //       }
+        //     },
+        //     this.$graffitiSession.value,
+        //   );
+        //   console.log("put");
+        // }
       },
 
       // given date, return next date

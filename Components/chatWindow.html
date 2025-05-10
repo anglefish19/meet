@@ -50,7 +50,7 @@
                 <section v-else></section>
                 
                 <section v-if="object.value.messageType == 'scheduler'">
-                    <Scheduler :schedulerTitle=object.value.title :schedulerObject='object' :offset="offset"  :schedulerSchema="schedulerSchema"></Scheduler>
+                    <Scheduler :schedulerTitle=object.value.title :schedulerObject='object' :offset="offset"></Scheduler>
                 </section>
 
                 <form class="hiddenUnlessReveal" @submit.prevent="editMessage($event, object)">

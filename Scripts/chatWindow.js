@@ -558,17 +558,22 @@ export async function ChatWindow() {
       },
 
       async getMembers() {
-        const userChats = this.$graffiti.discover(
-          [this.username], // channels
-          this.chatSchema // schema
-        );
-        const chatsArray = [];
-        for await (const { object } of userChats) {
-          chatsArray.push(object);
-        }
-        const chat = chatsArray.filter(c => c.value.channel == this.channel)[0];
-        if (chat) {
-          chat.value.participants.map(m => this.chatMembers.push(m));
+        if (this.channel) {
+          const userChats = this.$graffiti.discover(
+            [this.username], // channels
+            this.chatSchema // schema
+          );
+          
+          const chatsArray = [];
+          for await (const { object } of userChats) {
+            chatsArray.push(object);
+          }
+          console.log(chatsArray);
+          const chat = chatsArray.filter(c => c.value.channel == this.channel)[0];
+          console.log(chat);
+          if (chat) {
+            chat.value.participants.map(m => this.chatMembers.push(m));
+          }
         }
       },
     },

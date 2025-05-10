@@ -5,7 +5,7 @@
     <graffiti-get v-else :url="profilePicURL" :schema="graffitiFileSchema" v-slot="{ object }">
         <graffiti-object-to-file :object="object" v-slot="{ file, fileDataUrl }">
             <p v-if="file === undefined">Loading...</p>
-            <img v-else-if="file === null || !file.type.startsWith('image/')" class="profilePic" src="../Icons/Account Icon.svg">
+            <img v-else-if="file === null || !file.type.startsWith('image/')" class="profilePic" src="./Icons/Account Icon.svg">
             <template v-else>
                 <img :src="fileDataUrl" class="profilePic" alt="Profile Image" />
             </template>
