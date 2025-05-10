@@ -1,0 +1,18 @@
+<section class="scheduler-grid" id="this.schedulerObject.url">
+    <h2>{{this.schedulerTitle}}</h2>
+    <div>
+        <span class="empty"></span>
+        <section id="dateLabels">
+        </section>
+    </div>
+    <div>
+        <section id="timeLabels">
+        </section>
+        <section id="grid">
+        </section>
+    </div>
+    <span>
+        <button id="clearButton" @click="resetUserAvailability">clear availability</button>
+        <button @click="saveAvailability">save availability</button>
+    </span>
+</section>

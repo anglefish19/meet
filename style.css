@@ -4,6 +4,9 @@
     --lightHover: oklch(0.73 0.0789 245.46);
     --medium: oklch(0.48 0.1042 248.25);
     --dark: oklch(0.3 0.0747 249.76);
+    --grey: oklch(0.9 0 0);
+    --red: oklch(0.94 0.0197 17.51);
+    --green: oklch(0.78 0.0789 163.18);
 }
 
 * {
@@ -38,7 +41,8 @@ h1 {
     margin-inline-start: 0.25em;
 }
 
-h1, h2 {
+h1,
+h2 {
     margin-block: 0;
     padding-block: 0.1em;
 }
@@ -47,21 +51,28 @@ header button {
     height: 100%;
 }
 
-button, input[type="submit"] {
+button,
+input[type="submit"] {
     background-color: var(--light);
     font-size: 12pt;
     font-weight: 500;
     border-style: none;
     padding-inline: 0.5em;
     width: fit-content;
+    transition: 400ms;
 }
 
-button:hover, input[type="submit"]:hover, .imgIcon:hover {
+button:hover,
+input[type="submit"]:hover,
+.imgIcon:hover {
     background-color: var(--lightHover);
     cursor: pointer;
 }
 
-div, main, .generalLayout, .sideAndChatLayout {
+div,
+main,
+.generalLayout,
+.sideAndChatLayout {
     height: 100%;
 }
 
@@ -93,6 +104,7 @@ nav {
     font: inherit;
     border-radius: 0;
     appearance: none;
+    transition: 300ms;
 }
 
 img {
@@ -102,6 +114,13 @@ img {
     filter: invert(100%);
 }
 
+.profilePic {
+    filter: invert(0);
+    width: 5em;
+    height: 5em;
+    border-radius: 2.5em;
+}
+
 #sidebar {
     border-inline-style: solid;
     border-inline-color: var(--light);
@@ -109,25 +128,48 @@ img {
     height: 1fr;
 }
 
-#sidebar, #chat {
+#sidebar,
+#chat {
     padding-inline: 1em;
     padding-block-start: 0.5em;
 }
 
+#sidebar h2,
+#sidebar h3 {
+    margin: 0;
+}
+
 #chat {
     display: grid;
-    grid-template-rows: 3em 2em 1fr 4em;
+    grid-template-rows: 2em 1fr 4em;
+}
+
+#chat ul {
+    height: 70vh;
+    overflow: scroll;
+}
+
+#chat h2 .imgIcon {
+    font-size: 0.75em;
+}
+
+#chatlist {
+    height: 77vh;
+    overflow: scroll;
 }
 
 #sendbar {
     display: grid;
-    grid-template-columns: 5em 1fr;
-    padding-block: 0.5em;
+    grid-template-columns: 3em 1fr;
+    gap: 0.5em;
+    /* grid-template-columns: 5em 1fr; */
+    padding-block: 0.25em;
 }
 
 #sendbar section {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
+    /* grid-template-columns: 1fr 1fr; */
 }
 
 #sendbar img {
@@ -153,7 +195,8 @@ img {
     cursor: pointer;
 }
 
-button, input {
+button,
+input {
     margin: 3px;
 }
 
@@ -161,7 +204,7 @@ input[type="text"] {
     width: 300px;
 }
 
-:checked + input[type="text"] {
+:checked+input[type="text"] {
     color: gray;
     font-style: italic;
     text-decoration: line-through;
@@ -229,7 +272,8 @@ li form {
     margin-bottom: 0;
 }
 
-.profile h2, .profile p {
+.profile h2,
+.profile p {
     padding: 0;
     margin: 0;
 }
@@ -257,6 +301,7 @@ nav .router-link-active button {
 
 .centeredLayout {
     display: grid;
+    height: 100%;
     justify-items: center;
     grid-template-rows: min-content;
 }
@@ -266,9 +311,149 @@ video {
     margin-block: 1em;
 }
 
-.itd div, .itd h2 {
+.profile-setup,
+.profile-setup form {
+    display: grid;
+    justify-items: center;
+}
+
+.profile-setup {
+    height: 100%;
+    align-items: end;
+    grid-template-rows: 5em 7em 5em;
+}
+
+.profile-setup form {
+    height: 100%;
+    text-align: center;
+    align-items: center;
+    grid-template-rows: repeat(3, 2.5em) 2.5em 5em;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.profile-setup label {
+    color: var(--medium);
+}
+
+.profile-setup label:hover {
+    color: var(--lightHover);
+    cursor: pointer;
+}
+
+.itd div,
+.itd h2 {
     font-size: 16pt;
     height: auto;
     margin-block: 0;
     padding: 0;
+}
+
+.scheduler-setup {
+    justify-items: center;
+}
+
+.scheduler-setup form {
+    display: grid;
+    justify-items: center;
+}
+
+.scheduler-setup {
+    align-items: end;
+    grid-template-rows: 5em min-content;
+}
+
+.scheduler-setup form {
+    align-items: center;
+    grid-template-rows: min-content;
+}
+
+.scheduler-setup table {
+    margin-block: 1em;
+}
+
+.scheduler-grid {
+    text-align: center;
+    align-items: end;
+    scale: 0.9;
+    grid-template-rows: 3em min-content min-content;
+}
+
+.scheduler-grid,
+#grid,
+#dateLabels {
+    justify-content: center;
+    justify-items: center;
+    gap: 4px;
+}
+
+#dateLabels {
+    display: grid;
+}
+
+#timeLabels {
+    display: grid;
+    justify-items: end;
+    gap: 4px;
+}
+
+.scheduler-grid div {
+    display: grid;
+    grid-template-columns: 75px 1fr 75px;
+    gap: 10px;
+}
+
+.scheduler-grid button {
+    height: 28pt;
+    margin-bottom: 1em;
+}
+
+#grid {
+    display: grid;
+    padding-block-end: 1em;
+}
+
+.scheduler-grid h3 {
+    margin-block: 0;
+    padding-block: 0;
+    font-weight: 500;
+    font-size: 12pt;
+}
+
+#timeLabels h3 {
+    font-weight: 300;
+    font-size: 10pt;
+}
+
+.grid-cell {
+    width: 50px;
+    height: 30px;
+    background-color: var(--red);
+    border: 1px solid var(--grey);
+    transition: background-color 0.3s;
+}
+
+.grid-cell:hover,
+.selected {
+    background-color: var(--green);
+}
+
+.dragging-area {
+    position: absolute;
+    background: rgba(136, 200, 169, 0.2);
+    pointer-events: none;
+    border: 1px solid var(--green);
+}
+
+.revealScheduler {
+    display: grid;
+    position: absolute;
+    width: 67vw;
+    height: 70%;
+    margin-top: 3em;
+    justify-self: center;
+    background-color: white;
+    overflow: scroll;
 }

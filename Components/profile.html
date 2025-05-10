@@ -1,35 +1,29 @@
 <section class="profile">
+    <!-- TODO: DELETE COMMENT (for debugging only) -->
+    <!-- <button @click="recoverOrphans()"></button> -->
     <graffiti-discover v-slot="{ objects: profileObjects, isInitialPolling }"
-        :channels="[this.username]" :schema="{
-            type: 'object',
-            required: ['value'],
-            properties: {
-                value: {
-                    type: 'object',
-                    required: ['username', 'profilePic'],
-                    properties: {
-                        username: { type: 'string', enum: [this.username] },
-                        profilePic: { type: 'string' }
-                    }
-                }
-            },
-        }">
+        :channels="[this.username]" :schema="this.profileSchema">
         <div v-for="profile of profileObjects">
-            <img :src=profile.value.profilePic>
+            <img v-if="!profile.value.profilePicURL" class="profilePic" src="../Icons/Account Icon.svg">
+            <graffiti-get v-else :url="profile.value.profilePicURL" :schema="graffitiFileSchema" v-slot="{ object }">
+                <graffiti-object-to-file :object="object" v-slot="{ file, fileDataUrl }">
+                    <p v-if="file === undefined">Loading...</p>
+                    <img v-else-if="file === null || !file.type.startsWith('image/')" class="profilePic" src="../Icons/Account Icon.svg">
+                    <template v-else>
+                        <img :src="fileDataUrl" class="profilePic" alt="Profile Image" />
+                        <!-- <p v-if="object.actor === $graffitiSession.value.actor">
+                            <button @click="$graffiti.delete(object, $graffitiSession.value)">
+                                Delete {{ file.name }}
+                            </button>
+                        </p> -->
+                    </template>
+                </graffiti-object-to-file>
+            </graffiti-get>
             <h2>{{profile.value.username}}</h2>
-            <p v-if="profile.value.name">{{profile.value.name}}</p>
-            <p class="italic" v-if="profile.value.pronouns">{{profile.value.pronouns}}</p>
-            <button class="icon" @click="revealInput($event)">
-                edit profile
-            </button>
-            <form class="hiddenUnlessReveal" @submit.prevent="setProfile($event, profile)">
-                <fieldset :disabled="saving">
-                    <input type="text" placeholder="name" v-model="name">
-                    <input type="text" placeholder="pronouns" v-model="pronouns"/>
-                    <input type="submit" :value="saving? 'saving...' : 'save'" />
-                </fieldset>
-            </form>
-            <!-- <button @click="deleteAccount(profile)">Delete Account</button> -->
+            <p>{{profile.value.name}}</p>
+            <button @click="checkProfiles()">check</button>
+            <button @click="deleteProfile(profile)">delete</button>
+            <router-link :to="`/profile-setup`"><button>edit profile</button></router-link>
         </div>
     </graffiti-discover>
 </section>

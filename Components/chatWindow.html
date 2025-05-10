@@ -1,17 +1,16 @@
 <section id="chat">
-    <graffiti-discover 
-        v-if="this.channel"
-        v-slot="{ objects: invitations, isInitialPolling }" 
-        :channels="[$graffitiSession.value.actor]"
-        :schema="chatSchema">
+    <graffiti-discover v-if="this.channel" v-slot="{ objects: invitations, isInitialPolling }"
+        :channels="[this.username]" :schema="chatSchema">
         <section class="chatWindow" v-for="invite of invitations">
-            <span v-if="invite.actor === $graffitiSession.value.actor" class="toBeRevised">
-                <button class="imgIcon icon" @click="renameChat(invite)">✏️</button>
-                <button class="imgIcon icon" @click="deleteChat(invite)">🗑️</button>
-                <button class="imgIcon icon" @click="removeMember(invite, $graffitiSession.value.actor, invite.actor == $graffitiSession.value.actor)">🚪➡️</button>
-                <button @click="addMembers(invite)">Add Members</button>
-            </span>
-            <ITD :text="invite.value.title"></ITD>
+            <h2>
+                {{invite.value.title}}
+                <span v-if="invite.actor === $graffitiSession.value.actor" class="toBeRevised">
+                    <button class="imgIcon icon" @click="renameChat(invite)">✏️</button>
+                    <button class="imgIcon icon" @click="deleteChat(invite)">🗑️</button>
+                    <!-- <button class="imgIcon icon" @click="removeMember(invite, $graffitiSession.value.actor, invite.actor == $graffitiSession.value.actor)">🚪➡️</button> -->
+                    <button @click="addMembers(invite)">Add Members</button>
+                </span>
+            </h2>
 
             <!-- <form @submit.prevent="addMembers(this.channel, newMembers)">
                 <fieldset :disabled="adding">
@@ -22,35 +21,21 @@
             </form> -->
         </section>
     </graffiti-discover>
-
     <h2 v-else>no chat selected</h2>
 
-    
-
-    <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]" :schema="{
-                properties: {
-                    value: {
-                        required: ['content', 'published'],
-                        properties: {
-                            content: { type: 'string' },
-                            published: { type: 'number' }
-                        }
-                    }
-                }
-            }">
-
-        <div>
-            <!-- FIX CSS LATER -->
-        </div>
-
+    <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]" :schema="this.messageSchema">
         <ul>
             <li v-if="isInitialPolling">Loading...</li>
             <li v-for="object of messageObjects.sort((a, b) => a.value.published - b.value.published)"
                 :key="object.url">
                 <section>
                     <strong>
-                        {{ object.actor }}<span v-if="object.actor===$graffitiSession.value.actor">
-                            (you)</span></strong>: {{ object.value.content }}
+                        <span v-if="object.value.username">{{ object.value.username }}</span>
+                        <span v-if="object.actor===$graffitiSession.value.actor && object.value.messageType == 'text'"> (you)</span>
+                        <span v-else-if="object.value.messageType == 'scheduler'">system</span>
+                    </strong>: 
+                    <span v-if="object.value.messageType == 'scheduler'" class="italic">{{ object.value.content }}</span>
+                    <span v-else>{{ object.value.content }}</span>
                 </section>
 
                 <section v-if="object.actor == $graffitiSession.value.actor">
@@ -63,6 +48,10 @@
                     </span>
                 </section>
                 <section v-else></section>
+                
+                <section v-if="object.value.messageType == 'scheduler'">
+                    <Scheduler :schedulerTitle=object.value.title :schedulerObject='object' :offset="offset"></Scheduler>
+                </section>
 
                 <form class="hiddenUnlessReveal" @submit.prevent="editMessage($event, object)">
                     <input type="text" placeholder="revise above message" v-model="revisedMessage">
@@ -75,8 +64,8 @@
     <section id="sendbar" v-if="this.channel">
         <!-- TODO: add in scheduler + activity functionality -->
         <section>
-            <button class="imgIcon"><img src="./Icons/Scheduler Icon.svg"></button>
-            <button class="imgIcon"><img src="./Icons/Activity Suggester Icon.svg"></button>
+            <button class="imgIcon" @click="toggleScheduler()"><img src="./Icons/Scheduler Icon.svg"></button>
+            <!-- <button class="imgIcon"><img src="./Icons/Activity Suggester Icon.svg"></button> -->
         </section>
         <form @submit.prevent="sendMessage()">
             <fieldset :disabled="sending">
@@ -84,5 +73,55 @@
                 <input type="submit" :value="sending? 'sending...' : 'send'" />
             </fieldset>
         </form>
+    </section>
+
+    <!-- SCHEDULER STUFF -->
+    <section class="scheduler hiddenUnlessReveal">
+        <section class="scheduler-setup hiddenUnlessReveal reveal">
+            <h2>scheduler setup</h2>
+
+            <form @submit.prevent="setupScheduler()">
+                <fieldset :disabled="creating">
+                    <input type="text" v-model="schedulerTitle" placeholder="name of scheduler" />
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th><label for="startDate">From</label></th>
+                                <th><label for="endDate">To</label></th>
+                                <th><label for="startTime">From</label></th>
+                                <th><label for="endTime">To</label></th>
+                            </tr>
+                            <tr>
+                                <td><input id="startDate" type="date" v-model="startDate" min="minDate" /></td>
+                                <td><input id="endDate" type="date" v-model="endDate" min="minDate" /></td>
+                                <td><select id="startTime" v-model="startTime"></select></td>
+                                <td><select id="endTime" v-model="endTime"></select></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- todo: add rows -->
+                    <input type="submit" :value="creating? 'setting up scheduler...' : 'setup scheduler'" />
+                </fieldset>
+            </form>
+        </section>
+
+        <section class="scheduler-grid hiddenUnlessReveal">
+            <h2>{{this.schedulerTitle}}</h2>
+            <div>
+                <span class="empty"></span>
+                <section id="dateLabels">
+                </section>
+            </div>
+            <div>
+                <section id="timeLabels">
+                </section>
+                <section id="grid">
+                </section>
+            </div>
+            <span>
+                <button id="clearButton" @click="clearAll">clear availability</button>
+                <button @click="sendScheduler">send scheduler</button>
+            </span>
+        </section>
     </section>
 </section>

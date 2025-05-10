@@ -1,4 +1,4 @@
 <section id="sidebar">
-    <NewChatForm v-if="this.view == 'new-chat'"></NewChatForm>
+    <NewChatForm v-if="this.view == 'new-chat'" :username="username" :profileSchema="profileSchema"></NewChatForm>
     <ChatList v-else :username="username" :inviteSchema="inviteSchema"></ChatList>
 </section>

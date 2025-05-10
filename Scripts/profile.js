@@ -1,18 +1,53 @@
+import { fileToGraffitiObject, graffitiFileSchema } from "@graffiti-garden/wrapper-files";
+import { GraffitiObjectToFile } from "@graffiti-garden/wrapper-files/vue";
+
 export async function Profile() {
   return {
-    props: ["username"],
+    props: ["profileSchema", "username"],
 
     data() {
       return {
         saving: false,
         name: "",
         pronouns: "",
+        profile: undefined,
+        graffitiFileSchema
       }
     },
 
+    components: { GraffitiObjectToFile },
+
     methods: {
+      // TODO: DELETE (was for debugging)
+      // async recoverOrphans() {
+      //   const orphans = this.$graffiti.recoverOrphans({}, this.$graffitiSession.value);
+      //   const orphansArray = [];
+      //   for await (const { object } of orphans) {
+      //     orphansArray.push(object);
+      //     // await this.$graffiti.delete(object, this.$graffitiSession.value);
+      //   }
+      //   console.log(orphansArray);
+      // },
+      async checkProfiles() {
+        const profiles = this.$graffiti.discover(
+          // channels
+          ["ajz-meet-profiles"],
+          // schema
+          this.profileSchema
+        );
+  
+        const profileArray = [];
+        for await (const { object } of profiles) {
+          profileArray.push(object);
+        }
+  
+        console.log(profileArray);
+      },
+
       async deleteProfile(profile) {
         await this.$graffiti.delete(profile, this.$graffitiSession.value);
+        this.$router.push("/");
+        this.$graffiti.logout(this.$graffitiSession.value);
       },
 
       async setProfile(e, profile) {
@@ -23,14 +58,14 @@ export async function Profile() {
         if (this.name && this.pronouns) {
           patch = {
             value: [
-              { "op": "add", "path": "/name" , "value": this.name },
+              { "op": "add", "path": "/name", "value": this.name },
               { "op": "add", "path": "/pronouns", "value": this.pronouns },
             ],
           }
         } else if (this.name) {
           patch = {
             value: [
-              { "op": "add", "path": "/name" , "value": this.name }
+              { "op": "add", "path": "/name", "value": this.name }
             ],
           }
         } else if (this.pronouns) {
@@ -53,10 +88,24 @@ export async function Profile() {
         );
 
         this.saving = false;
-        this.revealInput(e);
+        await this.revealInput(e);
       },
 
-      revealInput(e) {
+      async revealInput(e) {
+        const profiles = this.$graffiti.discover(
+          // channels
+          [this.username],
+          // schema
+          this.profileSchema
+        );
+
+        const profileArray = [];
+        for await (const { object } of profiles) {
+          profileArray.push(object);
+        }
+
+        profile = profileArray[0];
+
         e.target.closest("div").lastElementChild.classList.toggle("reveal");
         e.target.closest("div").lastElementChild.firstElementChild.firstElementChild.focus();
       },
