@@ -1,7 +1,7 @@
 <main class="centeredLayout profile-setup">
     <h2>profile setup</h2>
 
-    <img v-if="!profilePicURL" class="profilePic" src="../Icons/Account Icon.svg">
+    <img v-if="!profilePicURL" class="profilePic" src="./Icons/Account Icon.svg">
     <graffiti-get v-else :url="profilePicURL" :schema="graffitiFileSchema" v-slot="{ object }">
         <graffiti-object-to-file :object="object" v-slot="{ file, fileDataUrl }">
             <p v-if="file === undefined">Loading...</p>
