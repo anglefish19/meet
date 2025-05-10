@@ -1,6 +1,6 @@
 export async function Scheduler() {
   return {
-    props: ['schedulerTitle', 'schedulerObject', 'offset'],
+    props: ['schedulerTitle', 'schedulerObject', 'channel', 'schedulerSchema', 'offset'],
 
     data() {
       return {
@@ -9,15 +9,8 @@ export async function Scheduler() {
         startDate: undefined,
         endDate: undefined,
         availability: {},
+        index: 0,
 
-        // value: {
-        //   activity: 'FillScheduler',
-        //   target: "Scheduler",
-        //   username: this.username,
-        //   availability: this.availability,
-        //   created: Date.now(),
-        //   lastEdited: Date.now(),
-        // }
         availabilitySchema: {
           properties: {
             value: {
@@ -49,10 +42,25 @@ export async function Scheduler() {
     },
 
     methods: {
-      setupScheduler() {
+      async setupScheduler() {
+        const schedulers = this.$graffiti.discover(
+          [this.channel], // channels
+          this.schedulerSchema // schema
+        );
+        
+        const schedulersArray = [];
+        for await (const { object } of schedulers) {
+          schedulersArray.push(object);
+        }
+        for (let i=0; i < schedulersArray.length; i++) {
+          if (schedulersArray[i].url == this.schedulerObject.url) {
+            this.index = i;
+          }
+        }
+
         const comparativeST = new Date((new Date(this.startDate)).getTime() + this.offset);
         const comparativeET = new Date((new Date(this.endDate)).getTime() + this.offset);
-        const schedulerGrid = document.getElementById('grid');
+        const schedulerGrid = document.querySelectorAll('.sentSchedulerGrid .individual-scheduler')[this.index];
 
         // Set rows & columns
         const numRows = this.endTime - this.startTime;
@@ -76,7 +84,7 @@ export async function Scheduler() {
         }
 
         // Add date labels
-        const dateLabels = document.getElementById('dateLabels');
+        const dateLabels = document.querySelectorAll('.sentSchedulerGrid .dateLabels')[this.index];
         dateLabels.style.gridTemplateColumns = `repeat(${numCols}, 50px)`;
         let current = comparativeST;
         for (let i = 0; i < numCols; i++) {
@@ -91,7 +99,7 @@ export async function Scheduler() {
         }
 
         // Add time labels
-        const timeLabels = document.getElementById('timeLabels');
+        const timeLabels = document.querySelectorAll('.sentSchedulerGrid .timeLabels')[this.index];
         timeLabels.style.gridTemplateRows = `repeat(${numRows}, 30px)`;
         for (let i = this.startTime; i <= this.endTime; i++) {
           const label = document.createElement('h3');
@@ -108,8 +116,6 @@ export async function Scheduler() {
         }
 
         // Add functionality
-        const clearButton = document.getElementById('clearButton');
-
         document.addEventListener('mousemove', (e) => {
           if (this.isDragging) {
             const currentX = e.pageX;

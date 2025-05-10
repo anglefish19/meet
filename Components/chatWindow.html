@@ -24,6 +24,9 @@
     <h2 v-else>no chat selected</h2>
 
     <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]" :schema="this.messageSchema">
+        <!-- <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]" :schema="this.messageSchema"> -->
+        <!-- {{messageObjects}} -->
+         <!-- {{messageObjects}} -->
         <ul>
             <li v-if="isInitialPolling">Loading...</li>
             <li v-for="object of messageObjects.sort((a, b) => a.value.published - b.value.published)"
@@ -50,7 +53,7 @@
                 <section v-else></section>
                 
                 <section v-if="object.value.messageType == 'scheduler'">
-                    <Scheduler :schedulerTitle=object.value.title :schedulerObject='object' :offset="offset"></Scheduler>
+                    <Scheduler :schedulerTitle=object.value.title :channel="channel" :schedulerSchema="schedulerSchema" :schedulerObject='object' :offset="offset"></Scheduler>
                 </section>
 
                 <form class="hiddenUnlessReveal" @submit.prevent="editMessage($event, object)">
@@ -109,11 +112,11 @@
             <h2>{{this.schedulerTitle}}</h2>
             <div>
                 <span class="empty"></span>
-                <section id="dateLabels">
+                <section class="dateLabels" id="dateLabels">
                 </section>
             </div>
             <div>
-                <section id="timeLabels">
+                <section class="timeLabels" id="timeLabels">
                 </section>
                 <section id="grid">
                 </section>

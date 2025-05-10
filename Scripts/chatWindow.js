@@ -70,6 +70,7 @@ export async function ChatWindow() {
         },
 
         // SCHEDULER STUFF
+        numSchedulers: 0,
         chatMembers: [],
         offset: offset * 60 * 1000,
         today: today,
@@ -278,6 +279,11 @@ export async function ChatWindow() {
         // Refocus the input field after sending the message
         await this.$nextTick();
         this.$refs.messageInput.focus();
+
+        document.querySelector("#chat ul").scrollTo({
+          top: document.querySelector("#chat ul").scrollHeight,
+          behavior: "smooth" // Smooth scrolling effect
+        });
       },
 
       async editMessage(e, messageObject) {
@@ -325,10 +331,13 @@ export async function ChatWindow() {
           alert("You can't make a scheduler with dates already in the past.");
           return;
         }
-
-        this.toggleSchedulerContent();
-
         const schedulerGrid = document.getElementById('grid');
+        const dateLabels = document.getElementById('dateLabels');
+        const timeLabels = document.getElementById('timeLabels');
+
+        schedulerGrid.replaceChildren();
+        dateLabels.replaceChildren();
+        timeLabels.replaceChildren();
 
         // Set rows & columns
         const numRows = this.endTime - this.startTime;
@@ -364,7 +373,6 @@ export async function ChatWindow() {
         }
 
         // Add date labels
-        const dateLabels = document.getElementById('dateLabels');
         dateLabels.style.gridTemplateColumns = `repeat(${numCols}, 50px)`;
         let current = comparativeST;
         for (let i = 0; i < numCols; i++) {
@@ -379,7 +387,6 @@ export async function ChatWindow() {
         }
 
         // Add time labels
-        const timeLabels = document.getElementById('timeLabels');
         timeLabels.style.gridTemplateRows = `repeat(${numRows}, 30px)`;
         for (let i = this.startTime; i <= this.endTime; i++) {
           const label = document.createElement('h3');
@@ -396,8 +403,6 @@ export async function ChatWindow() {
         }
 
         // Add functionality
-        const clearButton = document.getElementById('clearButton');
-
         document.addEventListener('mousemove', (e) => {
           if (this.isDragging) {
             const currentX = e.pageX;
@@ -433,16 +438,31 @@ export async function ChatWindow() {
             this.isDragging = false;
           }
         });
+        this.showGrid();
       },
 
       async sendScheduler() {
+        console.log("sending scheduler");
         let cellCount = 1;
         const divisor = Object.keys(this.availability).length;
         document.querySelectorAll('.grid-cell').forEach(cell => {
           const rowNum = cellCount % divisor == 0 ? divisor : cellCount % divisor;
-          this.availability[rowNum]["hours"][this.startTime + Math.floor((cellCount - 1) / divisor)] = cell.classList.contains('selected');
+          this.availability[rowNum]["hours"][parseInt(this.startTime) + Math.floor((cellCount - 1) / divisor)] = cell.classList.contains('selected');
           cellCount++;
         });
+
+        // DELETE?
+        // get current number of schedulers sent in chat
+        // const schedulers = this.$graffiti.discover(
+        //   [this.channel], // channels
+        //   this.schedulerSchema // schema
+        // );
+        
+        // const schedulersArray = [];
+        // for await (const { object } of schedulers) {
+        //   schedulersArray.push(object);
+        // }
+        // const numSchedulers = schedulersArray.length;
 
         // put scheduler object in chat channel
         const tempScheduler = await this.$graffiti.put(
@@ -451,8 +471,8 @@ export async function ChatWindow() {
               content: this.username + " sent a scheduler!",
               published: Date.now(),
               creator: this.username,
-              startTime: this.startTime,
-              endTime: this.endTime,
+              startTime: parseInt(this.startTime),
+              endTime: parseInt(this.endTime),
               startDate: this.startDate,
               endDate: this.endDate,
               title: this.schedulerTitle,
@@ -466,14 +486,17 @@ export async function ChatWindow() {
 
         // TODO: DELETE LATER
         // console.log("temp: ", tempScheduler);
-        console.log("URL: ", tempScheduler.url);
-        // graffiti:local:-drUGRGp2AzMXM1bpaXFNd9yHuWKmNPQ
+        // console.log("URL: ", tempScheduler.url);
         // const actualScheduler = await this.$graffiti.get(tempScheduler.url, this.schedulerSchema);
-        // const scheduler = await this.$graffiti.delete("graffiti:local:ozznes7kS2I_iqXLK2ZDKHV8LjrUf0F2", this.$graffitiSession.value);
+        // graffiti:local:4JYQMSlI9jr8NHValo1rj5UjBieYtVPX
+        // graffiti:local:4PH5vb3jSEMsYwRVe3shAKnuwOKV3AIj
+        // graffiti:local:fXoMLVastkDHKlG2zIEeGMcaQqsqh9gE
+        // graffiti:local:F83fmGwqOJwHKNcGEEAIE8ys7MHH0D5h
+        // const scheduler = await this.$graffiti.delete("graffiti:local:dsphSs3o2uZ6Wd_igFZ8VQ-1gC_378EO", this.$graffitiSession.value);
         // console.log("actual: ", actualScheduler);
 
         // put availability object in scheduler channel
-        await this.$graffiti.put(
+        const tempAvailability = await this.$graffiti.put(
           {
             channels: [tempScheduler.url],
             value: {
@@ -487,6 +510,7 @@ export async function ChatWindow() {
           },
           this.$graffitiSession.value,
         );
+        // console.log("temp 2", tempAvailability);
         this.toggleScheduler();
       },
 
@@ -530,16 +554,21 @@ export async function ChatWindow() {
 
       toggleScheduler() {
         // reset scheduler if necessary
-        if (!document.querySelector('.scheduler').classList.contains("revealScheduler") &&
-          document.querySelector(".scheduler-grid").classList.contains("reveal")) {
-          this.toggleSchedulerContent();
+        if (document.querySelector('.scheduler').classList.contains("revealScheduler")) {
+          this.showForm();
         }
         document.querySelector('.scheduler').classList.toggle("revealScheduler");
       },
 
-      toggleSchedulerContent() {
-        document.querySelector(".scheduler-setup").classList.toggle("reveal");
-        document.querySelector(".scheduler-grid").classList.toggle("reveal");
+      showForm() {
+        document.querySelectorAll(".scheduler-setup")[document.querySelectorAll(".scheduler-setup").length - 1].classList.add("reveal");
+        document.querySelectorAll(".scheduler-grid")[document.querySelectorAll(".scheduler-grid").length - 1].classList.remove("reveal");
+      },
+
+      showGrid() {
+        document.querySelectorAll(".scheduler-setup")[document.querySelectorAll(".scheduler-setup").length - 1].classList.remove("reveal");
+        document.querySelectorAll(".scheduler-grid")[document.querySelectorAll(".scheduler-grid").length - 1].classList.add("reveal");
+        console.log(document.querySelector(".scheduler-grid"));
       },
 
       async getUsernameFromActor() {
@@ -568,14 +597,17 @@ export async function ChatWindow() {
           for await (const { object } of userChats) {
             chatsArray.push(object);
           }
-          console.log(chatsArray);
           const chat = chatsArray.filter(c => c.value.channel == this.channel)[0];
-          console.log(chat);
+          console.log("current chat: ", chat);
           if (chat) {
             chat.value.participants.map(m => this.chatMembers.push(m));
           }
         }
       },
+
+      // async deleteObject(object) {
+      //   await this.$graffiti.delete(object.url, this.$graffitiSession.value);
+      // }
     },
 
     template: await fetch("./Components/chatWindow.html").then((r) => r.text()),

@@ -17,6 +17,7 @@
 body {
     margin: 0;
     height: 100vh;
+    overflow: hidden;
 }
 
 #app {
@@ -146,7 +147,7 @@ img {
 
 #chat ul {
     height: 70vh;
-    overflow: scroll;
+    overflow: auto;
 }
 
 #chat h2 .imgIcon {
@@ -155,7 +156,7 @@ img {
 
 #chatlist {
     height: 77vh;
-    overflow: scroll;
+    overflow: auto;
 }
 
 #sendbar {
@@ -382,18 +383,18 @@ input[type="file"] {
 }
 
 .scheduler-grid,
-#grid,
-#dateLabels {
+#grid, .individual-scheduler,
+.dateLabels {
     justify-content: center;
     justify-items: center;
     gap: 4px;
 }
 
-#dateLabels {
+.dateLabels {
     display: grid;
 }
 
-#timeLabels {
+.timeLabels {
     display: grid;
     justify-items: end;
     gap: 4px;
@@ -410,7 +411,7 @@ input[type="file"] {
     margin-bottom: 1em;
 }
 
-#grid {
+#grid, .individual-scheduler {
     display: grid;
     padding-block-end: 1em;
 }
@@ -422,7 +423,7 @@ input[type="file"] {
     font-size: 12pt;
 }
 
-#timeLabels h3 {
+.timeLabels h3 {
     font-weight: 300;
     font-size: 10pt;
 }
@@ -456,4 +457,8 @@ input[type="file"] {
     justify-self: center;
     background-color: white;
     overflow: scroll;
+}
+
+#chat ul li:last-child {
+    padding-bottom: 16pt;
 }
