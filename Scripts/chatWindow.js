@@ -512,6 +512,12 @@ export async function ChatWindow() {
         );
         // console.log("temp 2", tempAvailability);
         this.toggleScheduler();
+
+        this.schedulerTitle = "";
+        document.querySelector("#chat ul").scrollTo({
+          top: document.querySelector("#chat ul").scrollHeight,
+          behavior: "smooth" // Smooth scrolling effect
+        });
       },
 
       // given date, return next date
