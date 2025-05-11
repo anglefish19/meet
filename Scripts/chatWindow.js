@@ -17,8 +17,8 @@ export async function ChatWindow() {
       // SCHEDULER STUFF
       const today = new Date();
       const offset = today.getTimezoneOffset();
-      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-      const weekFromTomorrow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const tomorrow = new Date(today.getTime() - offset * 60 * 1000 + 24 * 60 * 60 * 1000);
+      const weekFromTomorrow = new Date(today.getTime() - offset * 60 * 1000 + 7 * 24 * 60 * 60 * 1000);
 
       return {
         newChatName: "",
@@ -553,7 +553,6 @@ export async function ChatWindow() {
       },
 
       clearAll() {
-        // TODO: FIX THIS
         document.querySelector('.scheduler').querySelectorAll('.grid-cell').forEach(cell => {
           cell.classList.remove('selected');
         });

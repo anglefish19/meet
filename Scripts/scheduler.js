@@ -17,14 +17,10 @@ export async function Scheduler() {
               required: ['activity', 'target', 'username', 'availability', 'created', 'lastEdited'],
               properties: {
                 activity: { enum: ["FillScheduler"] },
-                target: { type: 'st' },
-                creator: { type: 'string' },
-                startTime: { type: 'number' },
-                endTime: { type: 'number' },
-                startDate: { type: 'string' },
-                endDate: { type: 'string' },
-                title: { type: 'string' },
-                messageType: { type: 'string' }
+                target: { enum: ["Scheduler"] },
+                username: { type: 'string' },
+                created: { type: 'number' },
+                lastEdited: { type: 'number' }
               }
             }
           }
@@ -43,6 +39,7 @@ export async function Scheduler() {
 
     methods: {
       async setupScheduler() {
+        // get index of scheduler
         const schedulers = this.$graffiti.discover(
           [this.channel], // channels
           this.schedulerSchema // schema
@@ -168,49 +165,48 @@ export async function Scheduler() {
           // channels
           [this.schedulerObject.url],
           // schema
-          // this.availabilitySchema
-          {}
+          this.availabilitySchema
         );
         const availabilitiesArray = [];
         for await (const { object } of availabilities) {
           availabilitiesArray.push(object);
         }
         // const availability = availabilitiesArray.filter(a => a.actor == this.$graffitiSession.value.actor)[0];
-        console.log(availabilitiesArray);
+        console.log("all availabilities", availabilitiesArray);
         const availability = availabilitiesArray.filter(a => a.actor == this.$graffitiSession.value.actor)[0];
+        console.log("user's availability", availability);
 
+        if (availability) {
+          const patch = {
+            value: [
+              { "op": "replace", "path": "/lastEdited", "value": Date.now() },
+              { "op": "replace", "path": "/availability", "value": this.availability },
+            ],
+          }
 
-        // if (availability) {
-        //   const patch = {
-        //     value: [
-        //       { "op": "replace", "path": "/lastEdited", "value": Date.now() },
-        //       { "op": "replace", "path": "/availability", "value": this.availability },
-        //     ],
-        //   }
-
-        //   await this.$graffiti.patch(
-        //     patch,
-        //     availability,
-        //     this.$graffitiSession.value,
-        //   );
-        //   console.log("patched");
-        // } else {
-        //   await this.$graffiti.put(
-        //     {
-        //       channels: [this.schedulerObject.url],
-        //       value: {
-        //         activity: 'FillScheduler',
-        //         target: "Scheduler",
-        //         username: this.username,
-        //         availability: this.availability,
-        //         created: Date.now(),
-        //         lastEdited: Date.now(),
-        //       }
-        //     },
-        //     this.$graffitiSession.value,
-        //   );
-        //   console.log("put");
-        // }
+          await this.$graffiti.patch(
+            patch,
+            availability,
+            this.$graffitiSession.value,
+          );
+          console.log("availability patched");
+        } else {
+          await this.$graffiti.put(
+            {
+              channels: [this.schedulerObject.url],
+              value: {
+                activity: 'FillScheduler',
+                target: "Scheduler",
+                username: this.username,
+                availability: this.availability,
+                created: Date.now(),
+                lastEdited: Date.now(),
+              }
+            },
+            this.$graffitiSession.value,
+          );
+          console.log("availability put");
+        }
       },
 
       // given date, return next date
