@@ -1,6 +1,6 @@
 export async function Scheduler() {
   return {
-    props: ['schedulerTitle', 'schedulerObject', 'channel', 'schedulerSchema', 'offset'],
+    props: ['schedulerTitle', 'schedulerObject', 'channel', 'schedulerSchema', 'offset', "username"],
 
     data() {
       return {
@@ -18,7 +18,8 @@ export async function Scheduler() {
           // }
         },
         colors: ["oklch(0.94 0.0197 17.51)"],
-        index: 0,
+        rgb: "37, 97, 149",
+        index: -1,
 
         availabilitySchema: {
           properties: {
@@ -58,53 +59,58 @@ export async function Scheduler() {
         for await (const { object } of schedulers) {
           schedulersArray.push(object);
         }
+        console.log("schedulersArray", schedulersArray);
         for (let i = 0; i < schedulersArray.length; i++) {
           if (schedulersArray[i].url == this.schedulerObject.url) {
             this.index = i;
+            console.log(i);
+            break;
           }
+
+          // await this.$graffiti.delete(schedulersArray[i].url, this.$graffitiSession.value);
         }
 
-        // get any availabilities
-        const availabilities = this.$graffiti.discover(
-          [this.schedulerObject.url], // channels
-          this.availabilitySchema // schema
-        );
-        let availabilitiesArray = [];
-        for await (const { object } of availabilities) {
-          availabilitiesArray.push(object);
-        }
-        console.log(availabilitiesArray);
+        this.getAllAvailability();
+        // // get any availabilities
+        // const availabilities = this.$graffiti.discover(
+        //   [this.schedulerObject.url], // channels
+        //   this.availabilitySchema // schema
+        // );
+        // let availabilitiesArray = [];
+        // for await (const { object } of availabilities) {
+        //   availabilitiesArray.push(object);
+        // }
+        // console.log(availabilitiesArray);
 
-        let max = 1;
-        // set up allAvailabilities
-        Object.keys(availabilitiesArray[0].value.availability).map(col => {
-          this.allAvailability[col] = {
-            date: availabilitiesArray[0].value.availability[col]["date"],
-            hours: {}
-          };
-          Object.keys(availabilitiesArray[0].value.availability[col]["hours"]).map(h => this.allAvailability[col]["hours"][h] = {
-            list: [],
-            text: "no one",
-          });
-        });
-        availabilitiesArray.map(a => {
-          Object.keys(a.value.availability).map(col => {
-            Object.keys(a.value.availability[col]["hours"]).map(h => {
-              if (a.value.availability[col]["hours"][h]) {
-                this.allAvailability[col]["hours"][h]["list"].push(a.value.username);
-                const currentText = this.allAvailability[col]["hours"][h]["text"];
-                this.allAvailability[col]["hours"][h]["text"] = currentText == "no one" ? a.value.username : currentText + ", " + a.value.username;
-                max = Math.max(max, this.allAvailability[col]["hours"][h]["list"].length + 1);
-              }
-            });
-          });
-        });
+        // let max = 1;
+        // // set up allAvailabilities
+        // Object.keys(availabilitiesArray[0].value.availability).map(col => {
+        //   this.allAvailability[col] = {
+        //     date: availabilitiesArray[0].value.availability[col]["date"],
+        //     hours: {}
+        //   };
+        //   Object.keys(availabilitiesArray[0].value.availability[col]["hours"]).map(h => this.allAvailability[col]["hours"][h] = {
+        //     list: [],
+        //     text: "no one",
+        //   });
+        // });
+        // availabilitiesArray.map(a => {
+        //   Object.keys(a.value.availability).map(col => {
+        //     Object.keys(a.value.availability[col]["hours"]).map(h => {
+        //       if (a.value.availability[col]["hours"][h]) {
+        //         this.allAvailability[col]["hours"][h]["list"].push(a.value.username);
+        //         const currentText = this.allAvailability[col]["hours"][h]["text"];
+        //         this.allAvailability[col]["hours"][h]["text"] = currentText == "no one" ? a.value.username : currentText + ", " + a.value.username;
+        //         max = Math.max(max, this.allAvailability[col]["hours"][h]["list"].length + 1);
+        //       }
+        //     });
+        //   });
+        // });
 
-        console.log("max ", max);
-        // set up colors;
-        for (let i = 1; i < max; i++) {
-          this.colors.push("rgba(141, 189, 231, " + 2/3 * (i + 1) / max + ")");
-        }
+        // // set up colors;
+        // for (let i = 1; i < max; i++) {
+        //   this.colors.push("rgba(141, 189, 231, " + 2/3 * (i + 1) / max + ")");
+        // }
 
         const comparativeST = new Date((new Date(this.startDate)).getTime() + this.offset);
         const comparativeET = new Date((new Date(this.endDate)).getTime() + this.offset);
@@ -126,12 +132,6 @@ export async function Scheduler() {
         for (let i = 0; i < numRows * numCols; i++) {
           const cell = document.createElement('div');
           cell.classList.add('grid-cell');
-          // set color of cell
-          const r = (i + 1) % numCols == 0 ? numCols : (i + 1) % numCols;
-          const numPeople = this.allAvailability[r]["hours"][parseInt(this.startTime) + Math.floor((i) / numCols)]["list"].length;
-          console.log(this.colors[numPeople]);
-          cell.style.backgroundColor = this.colors[numPeople];
-          cell.title = "available: " + this.allAvailability[r]["hours"][parseInt(this.startTime) + Math.floor((i) / numCols)]["text"];
           cell.addEventListener('mousedown', (e) => this.startDrag(e, cell));
           cell.addEventListener('dragstart', (e) => e.preventDefault());
           schedulerGrid.appendChild(cell);
@@ -215,6 +215,7 @@ export async function Scheduler() {
           this.availability[rowNum]["hours"][this.startTime + Math.floor((cellCount - 1) / divisor)] = cell.classList.contains('selected');
           cellCount++;
         });
+        console.log("availability", this.availability);
 
         // put availability object in scheduler channel
         const availabilities = this.$graffiti.discover(
@@ -230,7 +231,7 @@ export async function Scheduler() {
         // const availability = availabilitiesArray.filter(a => a.actor == this.$graffitiSession.value.actor)[0];
         console.log("all availabilities", availabilitiesArray);
         const availability = availabilitiesArray.filter(a => a.actor == this.$graffitiSession.value.actor)[0];
-        console.log("user's availability", availability);
+        console.log("user's saved availability", availability);
 
         if (availability) {
           const patch = {
@@ -247,7 +248,9 @@ export async function Scheduler() {
           );
           console.log("availability patched");
         } else {
-          await this.$graffiti.put(
+          console.log(this.username);
+          console.log(this.schedulerObject.url);
+          const temp = await this.$graffiti.put(
             {
               channels: [this.schedulerObject.url],
               value: {
@@ -261,8 +264,12 @@ export async function Scheduler() {
             },
             this.$graffitiSession.value,
           );
+          const actual = await this.$graffiti.get(temp.url, {});
+          console.log(actual);
           console.log("availability put");
         }
+
+        await this.getAllAvailability();
       },
 
       // given date, return next date
@@ -300,6 +307,72 @@ export async function Scheduler() {
       resetUserAvailability() {
         document.querySelectorAll('.sentSchedulerGrid .individual-scheduler')[this.index].querySelectorAll('.grid-cell').forEach(cell => {
           cell.classList.remove('selected');
+        });
+      },
+
+      async getAllAvailability() {
+        // get any availabilities
+        const availabilities = this.$graffiti.discover(
+          [this.schedulerObject.url], // channels
+          this.availabilitySchema // schema
+        );
+        let availabilitiesArray = [];
+        for await (const { object } of availabilities) {
+          availabilitiesArray.push(object);
+        }
+        console.log("availabilities for scheduler " + this.index, availabilitiesArray);
+
+        let max = 1;
+        // set up allAvailabilities
+        Object.keys(availabilitiesArray[0].value.availability).map(col => {
+          this.allAvailability[col] = {
+            date: availabilitiesArray[0].value.availability[col]["date"],
+            hours: {}
+          };
+          Object.keys(availabilitiesArray[0].value.availability[col]["hours"]).map(h => {
+            if (h != this.endTime) {
+              this.allAvailability[col]["hours"][h] = {
+                list: [],
+                text: "no one",
+              }
+            }
+          });
+        });
+        availabilitiesArray.map(a => {
+          Object.keys(a.value.availability).map(col => {
+            Object.keys(a.value.availability[col]["hours"]).map(h => {
+              if (a.value.availability[col]["hours"][h]) {
+                this.allAvailability[col]["hours"][h]["list"].push(a.value.username);
+                const currentText = this.allAvailability[col]["hours"][h]["text"];
+                this.allAvailability[col]["hours"][h]["text"] = currentText == "no one" ? a.value.username : currentText + ", " + a.value.username;
+                max = Math.max(max, this.allAvailability[col]["hours"][h]["list"].length + 1);
+              }
+            });
+          });
+        });
+
+        // set up colors;
+        this.colors = ["oklch(0.94 0.0197 17.51)"];
+        for (let i = 1; i < max; i++) {
+          this.colors.push("rgba(" + this.rgb + ", " + 3 / 4 * (i + 1) / max + ")");
+        }
+
+        const schedulerGrid = document.querySelectorAll('.sentSchedulerGrid .individual-scheduler')[this.index];
+
+        let cellCount = 0;
+        const comparativeST = new Date((new Date(this.startDate)).getTime() + this.offset);
+        const comparativeET = new Date((new Date(this.endDate)).getTime() + this.offset);
+        const numCols = (comparativeET - comparativeST) / (1000 * 60 * 60 * 24) + 1;
+        schedulerGrid.querySelectorAll('.grid-cell').forEach(cell => {
+          // set color of cell
+          const r = (cellCount + 1) % numCols == 0 ? numCols : (cellCount + 1) % numCols;
+          // console.log(this.allAvailability[r]);
+          // console.log(parseInt(this.startTime) + Math.floor((cellCount) / numCols));
+          const numPeople = this.allAvailability[r]["hours"][parseInt(this.startTime) + Math.floor((cellCount) / numCols)]["list"].length;
+          // console.log(this.colors[numPeople]);
+          cell.style.backgroundColor = this.colors[numPeople];
+          cell.title = "available: " + this.allAvailability[r]["hours"][parseInt(this.startTime) + Math.floor((cellCount) / numCols)]["text"];
+          cellCount++;
         });
       }
     },

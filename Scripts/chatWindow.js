@@ -218,7 +218,7 @@ export async function ChatWindow() {
               ...invite.value,
               participants: members,
             },
-            allowed: [...allowed],
+            // allowed: [...allowed],
           },
           this.$graffitiSession.value,
         );
@@ -476,8 +476,7 @@ export async function ChatWindow() {
               title: this.schedulerTitle,
               messageType: "scheduler"
             },
-            channels: [this.channel],
-            // allowed: allowed
+            channels: [this.channel]
           },
           this.$graffitiSession.value,
         );
