@@ -9,6 +9,15 @@ export async function Scheduler() {
         startDate: undefined,
         endDate: undefined,
         availability: {},
+        allAvailability: {
+          // col: {
+          //   date: Date,
+          //   hours: {
+          //     h: [usernames of ppl available]
+          //   }
+          // }
+        },
+        colors: ["oklch(0.94 0.0197 17.51)"],
         index: 0,
 
         availabilitySchema: {
@@ -33,7 +42,7 @@ export async function Scheduler() {
       this.endTime = this.schedulerObject.value.endTime;
       this.startDate = this.schedulerObject.value.startDate;
       this.endDate = this.schedulerObject.value.endDate;
-      
+
       this.setupScheduler();
     },
 
@@ -44,15 +53,57 @@ export async function Scheduler() {
           [this.channel], // channels
           this.schedulerSchema // schema
         );
-        
+
         const schedulersArray = [];
         for await (const { object } of schedulers) {
           schedulersArray.push(object);
         }
-        for (let i=0; i < schedulersArray.length; i++) {
+        for (let i = 0; i < schedulersArray.length; i++) {
           if (schedulersArray[i].url == this.schedulerObject.url) {
             this.index = i;
           }
+        }
+
+        // get any availabilities
+        const availabilities = this.$graffiti.discover(
+          [this.schedulerObject.url], // channels
+          this.availabilitySchema // schema
+        );
+        let availabilitiesArray = [];
+        for await (const { object } of availabilities) {
+          availabilitiesArray.push(object);
+        }
+        console.log(availabilitiesArray);
+
+        let max = 1;
+        // set up allAvailabilities
+        Object.keys(availabilitiesArray[0].value.availability).map(col => {
+          this.allAvailability[col] = {
+            date: availabilitiesArray[0].value.availability[col]["date"],
+            hours: {}
+          };
+          Object.keys(availabilitiesArray[0].value.availability[col]["hours"]).map(h => this.allAvailability[col]["hours"][h] = {
+            list: [],
+            text: "no one",
+          });
+        });
+        availabilitiesArray.map(a => {
+          Object.keys(a.value.availability).map(col => {
+            Object.keys(a.value.availability[col]["hours"]).map(h => {
+              if (a.value.availability[col]["hours"][h]) {
+                this.allAvailability[col]["hours"][h]["list"].push(a.value.username);
+                const currentText = this.allAvailability[col]["hours"][h]["text"];
+                this.allAvailability[col]["hours"][h]["text"] = currentText == "no one" ? a.value.username : currentText + ", " + a.value.username;
+                max = Math.max(max, this.allAvailability[col]["hours"][h]["list"].length + 1);
+              }
+            });
+          });
+        });
+
+        console.log("max ", max);
+        // set up colors;
+        for (let i = 1; i < max; i++) {
+          this.colors.push("rgba(141, 189, 231, " + 2/3 * (i + 1) / max + ")");
         }
 
         const comparativeST = new Date((new Date(this.startDate)).getTime() + this.offset);
@@ -75,6 +126,12 @@ export async function Scheduler() {
         for (let i = 0; i < numRows * numCols; i++) {
           const cell = document.createElement('div');
           cell.classList.add('grid-cell');
+          // set color of cell
+          const r = (i + 1) % numCols == 0 ? numCols : (i + 1) % numCols;
+          const numPeople = this.allAvailability[r]["hours"][parseInt(this.startTime) + Math.floor((i) / numCols)]["list"].length;
+          console.log(this.colors[numPeople]);
+          cell.style.backgroundColor = this.colors[numPeople];
+          cell.title = "available: " + this.allAvailability[r]["hours"][parseInt(this.startTime) + Math.floor((i) / numCols)]["text"];
           cell.addEventListener('mousedown', (e) => this.startDrag(e, cell));
           cell.addEventListener('dragstart', (e) => e.preventDefault());
           schedulerGrid.appendChild(cell);
@@ -150,7 +207,6 @@ export async function Scheduler() {
         });
       },
 
-      // TODO: fix put / patch issue
       async saveAvailability() {
         let cellCount = 1;
         const divisor = Object.keys(this.availability).length;
@@ -243,7 +299,7 @@ export async function Scheduler() {
 
       resetUserAvailability() {
         document.querySelectorAll('.sentSchedulerGrid .individual-scheduler')[this.index].querySelectorAll('.grid-cell').forEach(cell => {
-            cell.classList.remove('selected');
+          cell.classList.remove('selected');
         });
       }
     },

@@ -197,10 +197,8 @@ export async function ChatWindow() {
         const allowed = [];
         for (const m of members) {
           const profiles = this.$graffiti.discover(
-            // channels
-            [m],
-            // schema
-            this.profileSchema
+            [m], // channels
+            this.profileSchema // schema
           );
           const profileArray = [];
           for await (const { object } of profiles) {
