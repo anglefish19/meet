@@ -17,8 +17,8 @@ export async function ChatWindow() {
       // SCHEDULER STUFF
       const today = new Date();
       const offset = today.getTimezoneOffset();
-      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-      const weekFromTomorrow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const tomorrow = new Date(today.getTime() - offset * 60 * 1000 + 24 * 60 * 60 * 1000);
+      const weekFromTomorrow = new Date(today.getTime() - offset * 60 * 1000 + 7 * 24 * 60 * 60 * 1000);
 
       return {
         newChatName: "",
@@ -131,12 +131,11 @@ export async function ChatWindow() {
       }
 
       function setupOptions(timeElement) {
-        for (let h = 8; h <= 24; h++) {
+        for (let h = 0; h <= 24; h++) {
           let text = h > 12 ? h - 12 : h;
+          text = text == 0 ? 12 : text;
           text += (h >= 12 && h < 24) ? " PM" : " AM";
           timeElement.add(createOption(h, text));
-          h = h == 24 ? 0 : h;
-          h = h == 7 ? 24 : h;
         }
       }
 
@@ -198,10 +197,8 @@ export async function ChatWindow() {
         const allowed = [];
         for (const m of members) {
           const profiles = this.$graffiti.discover(
-            // channels
-            [m],
-            // schema
-            this.profileSchema
+            [m], // channels
+            this.profileSchema // schema
           );
           const profileArray = [];
           for await (const { object } of profiles) {
@@ -221,7 +218,7 @@ export async function ChatWindow() {
               ...invite.value,
               participants: members,
             },
-            allowed: [...allowed],
+            // allowed: [...allowed],
           },
           this.$graffitiSession.value,
         );
@@ -392,6 +389,7 @@ export async function ChatWindow() {
           const label = document.createElement('h3');
 
           let text = i > 12 ? i - 12 : i;
+          text = (text == 0) ? 12 : text;
           text += (i >= 12 && i < 24) ? " PM" : " AM";
           label.textContent = text;
 
@@ -417,7 +415,7 @@ export async function ChatWindow() {
 
         document.addEventListener('mouseup', () => {
           if (this.isDragging) {
-            document.querySelectorAll('.grid-cell').forEach(cell => {
+            document.querySelector('.scheduler').querySelectorAll('.grid-cell').forEach(cell => {
               const rect = cell.getBoundingClientRect();
               const cellInBox = rect.right >= Math.min(this.startX, this.dragBox.getBoundingClientRect().left) &&
                 rect.left <= Math.max(this.startX, this.dragBox.getBoundingClientRect().right) &&
@@ -445,7 +443,7 @@ export async function ChatWindow() {
         console.log("sending scheduler");
         let cellCount = 1;
         const divisor = Object.keys(this.availability).length;
-        document.querySelectorAll('.grid-cell').forEach(cell => {
+        document.querySelector('.scheduler').querySelectorAll('.grid-cell').forEach(cell => {
           const rowNum = cellCount % divisor == 0 ? divisor : cellCount % divisor;
           this.availability[rowNum]["hours"][parseInt(this.startTime) + Math.floor((cellCount - 1) / divisor)] = cell.classList.contains('selected');
           cellCount++;
@@ -478,8 +476,7 @@ export async function ChatWindow() {
               title: this.schedulerTitle,
               messageType: "scheduler"
             },
-            channels: [this.channel],
-            // allowed: allowed
+            channels: [this.channel]
           },
           this.$graffitiSession.value,
         );
@@ -512,6 +509,12 @@ export async function ChatWindow() {
         );
         // console.log("temp 2", tempAvailability);
         this.toggleScheduler();
+
+        this.schedulerTitle = "";
+        document.querySelector("#chat ul").scrollTo({
+          top: document.querySelector("#chat ul").scrollHeight,
+          behavior: "smooth" // Smooth scrolling effect
+        });
       },
 
       // given date, return next date
@@ -547,7 +550,7 @@ export async function ChatWindow() {
       },
 
       clearAll() {
-        document.querySelectorAll('.grid-cell').forEach(cell => {
+        document.querySelector('.scheduler').querySelectorAll('.grid-cell').forEach(cell => {
           cell.classList.remove('selected');
         });
       },

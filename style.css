@@ -6,7 +6,8 @@
     --dark: oklch(0.3 0.0747 249.76);
     --grey: oklch(0.9 0 0);
     --red: oklch(0.94 0.0197 17.51);
-    --green: oklch(0.78 0.0789 163.18);
+    /* --greenST: rgba(136, 200, 169, 0.2); */
+    /* --green: oklch(0.78 0.0789 163.18); */
 }
 
 * {
@@ -438,14 +439,14 @@ input[type="file"] {
 
 .grid-cell:hover,
 .selected {
-    background-color: var(--green);
+    border: 2px solid var(--medium);
 }
 
 .dragging-area {
     position: absolute;
-    background: rgba(136, 200, 169, 0.2);
+    background: var(--lightST);
     pointer-events: none;
-    border: 1px solid var(--green);
+    border: 1px solid var(--medium);
 }
 
 .revealScheduler {

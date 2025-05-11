@@ -1,6 +1,7 @@
 <section id="chat">
     <graffiti-discover v-if="this.channel" v-slot="{ objects: invitations, isInitialPolling }"
         :channels="[this.username]" :schema="chatSchema">
+        <!-- {{invitations}} -->
         <section class="chatWindow" v-for="invite of invitations">
             <h2>
                 {{invite.value.title}}
@@ -53,7 +54,14 @@
                 <section v-else></section>
                 
                 <section v-if="object.value.messageType == 'scheduler'">
-                    <Scheduler :schedulerTitle=object.value.title :channel="channel" :schedulerSchema="schedulerSchema" :schedulerObject='object' :offset="offset"></Scheduler>
+                    <Scheduler 
+                    :schedulerTitle=object.value.title 
+                    :channel="channel" 
+                    :schedulerSchema="schedulerSchema" 
+                    :schedulerObject='object' 
+                    :offset="offset"
+                    :username="username"
+                ></Scheduler>
                 </section>
 
                 <form class="hiddenUnlessReveal" @submit.prevent="editMessage($event, object)">
@@ -102,7 +110,6 @@
                             </tr>
                         </tbody>
                     </table>
-                    <!-- todo: add rows -->
                     <input type="submit" :value="creating? 'setting up scheduler...' : 'setup scheduler'" />
                 </fieldset>
             </form>
