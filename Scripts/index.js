@@ -147,8 +147,8 @@ createApp({
   },
 })
   .use(GraffitiPlugin, {
-    graffiti: new GraffitiLocal(),
-    // graffiti: new GraffitiRemote(),
+    // graffiti: new GraffitiLocal(),
+    graffiti: new GraffitiRemote(),
   })
   // borrowed from Carolina's app
   .directive('scroll-bottom', {

@@ -144,7 +144,7 @@ img {
 
 #chat {
     display: grid;
-    grid-template-rows: 2vh 1fr 10vh;
+    grid-template-rows: 4vh 1fr 10vh;
     width: 100%;
 }
 
