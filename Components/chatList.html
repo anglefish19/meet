@@ -8,7 +8,7 @@
     <ul id="chatlist">
         <li v-if="isInitialPolling">Loading...</li>
 
-        <li class="text" v-else-if="invitations.length == 0">
+        <li class="text" v-else-if="!isInChats(invitations)">
             You're not in any chats yet. 
             <router-link class="chat" :to = "`/` + this.username + `/new-chat`">Create a chat to get started!</router-link>
         </li>
@@ -16,12 +16,12 @@
         <li v-for="invite of invitations.sort((a, b) => a.value.title.localeCompare(b.value.title))"
             :key="invite.id">
 
-            <router-link class="chat" :to = "`/` + this.username + `/chats/` + invite.value.title + `/` + invite.value.channel">
+            <router-link v-if="!hasLeft(invite.value.channel)" class="chat" :to = "`/` + this.username + `/chats/` + invite.value.title + `/` + invite.value.channel">
                 <h3>{{invite.value.title}}</h3>
             </router-link>
-            <span v-if="invite.actor === $graffitiSession.value.actor" class="toBeRevised">
+            <!-- <span v-if="invite.actor === $graffitiSession.value.actor" class="toBeRevised">
                 <button class="imgIcon icon" @click="deleteChat(invite)">🗑️</button>
-            </span>
+            </span> -->
         </li>
     </ul>
 </graffiti-discover>

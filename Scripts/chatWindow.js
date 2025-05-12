@@ -6,14 +6,6 @@ export async function ChatWindow() {
     props: ["chatName", "channel", "inviteSchema", "profileSchema", "username"],
 
     data() {
-      // const path = this.$route.path.split("/");
-      // let channel = path.pop();
-      // if (channel == "chats") {
-      //   channel = undefined;
-      // } else {
-      //   chatName = path.pop();
-      // }
-
       // SCHEDULER STUFF
       const today = new Date();
       const offset = today.getTimezoneOffset();
@@ -55,6 +47,19 @@ export async function ChatWindow() {
               },
             },
           },
+        },
+
+        leftSchema: {
+          properties: {
+            value: {
+              required: ['activity', 'target', 'requester'],
+              properties: {
+                activity: { enum: ['Leave Chat'] },
+                target: { type: 'string' },
+                requester: { type: 'string' }
+              }
+            }
+          }
         },
 
         messageSchema: {
@@ -196,6 +201,7 @@ export async function ChatWindow() {
         else {
           members = members.split(", ");
         }
+        
         let actualMembers = [];
         const removedMembers = [];
         for (const m of members) {
@@ -263,7 +269,6 @@ export async function ChatWindow() {
         document.querySelector('#membersList').classList.add("revealMembersList");
       },
 
-      // TODO
       async removeMember(invite, member) {
         let actualMembers = [];
         invite.value.participants.map(p => {
@@ -648,9 +653,20 @@ export async function ChatWindow() {
         console.log(document.querySelector(".scheduler-grid"));
       },
 
-      // TODO
-      leave() {
+      async leave() {
+        await this.$graffiti.put(
+          {
+            channels: [this.username, this.channel],
+            value: {
+              activity: 'Leave Chat',
+              target: this.channel,
+              requester: this.username
+            },
+          },
+          this.$graffitiSession.value,
+        );
 
+        this.$router.push(`/` + this.username + `/chats`);
       },
 
       async getUsernameFromActor() {
@@ -670,6 +686,42 @@ export async function ChatWindow() {
 
       async getMembers() {
         if (this.channel) {
+          // check if user left the chat, in which case return to chats screen
+          const leftChats = this.$graffiti.discover(
+            [this.username], // channels
+            this.leftSchema // schema
+          );
+
+          const leftChatsArray = [];
+          for await (const { object } of leftChats) {
+            leftChatsArray.push(object);
+          }
+
+          const actuallyLeft = [];
+          for (const lc of leftChatsArray) {
+            const approved = this.$graffiti.discover(
+              [lc.url], // channels
+              {} // schema
+            );
+    
+            const approvedArray = [];
+            for await (const { object } of approved) {
+              approvedArray.push(object);
+            }
+            
+            if (approvedArray.length == 0) {
+              actuallyLeft.push(lc.value.target);
+            }
+          };
+
+          const leftChat = actuallyLeft.filter(c => c.value.target == this.channel)[0];
+          
+          if (leftChat) {
+            this.$router.push(`/` + this.username + `/chats`);
+            return;
+          }
+
+          // if user hasn't left chat, continue
           const userChats = this.$graffiti.discover(
             [this.username], // channels
             this.chatSchema // schema
@@ -679,9 +731,37 @@ export async function ChatWindow() {
           for await (const { object } of userChats) {
             chatsArray.push(object);
           }
+
           const chat = chatsArray.filter(c => c.value.channel == this.channel)[0];
-          console.log("current chat: ", chat);
+          
           if (chat) {
+            // go through and remove members that left
+            if (chat.value.owner == this.username) {
+              const requests = this.$graffiti.discover(
+                [this.channel], // channels
+                this.leftSchema // schema
+              );
+    
+              const requestsArray = [];
+              for await (const { object } of requests) {
+                requestsArray.push(object);
+              }
+
+              for (const r of requestsArray) {
+                await this.$graffiti.put(
+                  {
+                    channels: [r.value.requester, r.url],
+                    value: {
+                      activity: 'Request Processed',
+                      target: r.value.channel
+                    },
+                  },
+                  this.$graffitiSession.value,
+                );
+
+                this.removeMember(chat, r.value.requester);
+              };
+            }
             chat.value.participants.map(m => this.chatMembers.push(m));
           }
 

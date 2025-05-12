@@ -1,6 +1,3 @@
-import { defineAsyncComponent } from "vue";
-import { ITD } from "./itd.js";
-
 export async function ChatList() {
   return {
     props: ["username", "inviteSchema"],
@@ -16,14 +13,66 @@ export async function ChatList() {
         currentChat: "no chat selected",
         currentChatName: "no chat selected",
         members: "",
+        leftChats: [],
+
+        leftSchema: {
+          properties: {
+            value: {
+              required: ['activity', 'target', 'requester'],
+              properties: {
+                activity: { enum: ['Leave Chat'] },
+                target: { type: 'string' },
+                requester: { type: 'string' }
+              }
+            }
+          }
+        },
       };
     },
 
-    components: {
-      ITD: defineAsyncComponent(ITD),
+    mounted() {
+      this.getLeftChats();
     },
 
     methods: {
+      isInChats(invitations) {
+        return invitations.filter(i => !this.hasLeft(i.value.channel)).length != 0;
+      },
+
+      hasLeft(channel) {
+        return this.leftChats.filter(lc => lc == channel).length != 0;
+      },
+
+      async getLeftChats() {
+        const leftChats = this.$graffiti.discover(
+          [this.username], // channels
+          this.leftSchema // schema
+        );
+
+        const leftChatsArray = [];
+        for await (const { object } of leftChats) {
+          leftChatsArray.push(object);
+        }
+        
+        for (const lc of leftChatsArray) {
+          const approved = this.$graffiti.discover(
+            [lc.url], // channels
+            {} // schema
+          );
+  
+          const approvedArray = [];
+          for await (const { object } of approved) {
+            approvedArray.push(object);
+          }
+
+          if (approvedArray.length != 0) {
+            await this.$graffiti.delete(lc.url, this.$graffitiSession.value);
+          } else {
+            this.leftChats.push(lc.value.target);
+          }
+        };
+      },
+
       async editChatName(e, chatObject) {
         if (!this.newChatName) {
           alert("Please enter a name for the chat first!");
