@@ -16,7 +16,7 @@
         <fieldset :disabled="creating">
             <input type="text" v-model="firstName" placeholder='first name' />
             <input type="text" v-model="lastName" placeholder="last name" />
-            <input type="text" v-model="username" placeholder="username" />
+            <input type="text" v-model="newUsername" placeholder="username" v-if="username.length == 0"/>
             <label class="italic" for="profilePic">
                 upload profile photo
             </label>

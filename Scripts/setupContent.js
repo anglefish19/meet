@@ -31,6 +31,7 @@ export async function SetupContent() {
         firstName: "",
         lastName: "",
         username: "",
+        newUsername: "",
         profile: undefined,
         profilePic: undefined,
         profilePicURL: undefined,
@@ -40,6 +41,10 @@ export async function SetupContent() {
     },
 
     components: { GraffitiObjectToFile },
+
+    mounted() {
+      this.getProfile();
+    },
 
     methods: {
       async setupProfile() {
@@ -64,29 +69,23 @@ export async function SetupContent() {
         for await (const { object } of profiles) {
           profileArray.push(object);
         }
-
         this.profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
+
+        if (this.profile != undefined) {
+          this.username = this.profile.value.username;
+        } 
       },
 
       async editProfile() {
-        if (this.username != "" && !(/^\w+$/.test(this.username))) {
-          alert("A username may only contain letters, numbers, and underscores.");
-          return;
-        } else if (this.username != "" &&  await this.checkIfTaken(this.username)) {
-          alert("Sorry, this username is already taken.");
-          return;
-        }
         this.firstName = this.firstName ? this.firstName : this.profile.value.firstName;
         this.lastName = this.lastName ? this.lastName : this.profile.value.lastName;
-        this.username = this.username ? this.username : this.profile.value.username;
         this.profilePicURL = this.profilePicURL ? this.profilePicURL : this.profile.value.profilePicURL;
 
         const patch = {
           value: [
             { "op": "replace", "path": "/firstName", "value": this.firstName },
             { "op": "replace", "path": "/lastName", "value": this.lastName },
-            { "op": "replace", "path": "/name", "value": this.firstName + " " + this.lastName },
-            { "op": "replace", "path": "/username", "value": this.username },
+            { "op": "replace", "path": "/name", "value": this.firstName + " " + this.lastName }
           ],
         }
 
@@ -112,16 +111,16 @@ export async function SetupContent() {
         } else if (!this.lastName) {
           alert("Please enter your last name!");
           return;
-        } else if (!this.username) {
+        } else if (!this.newUsername) {
           alert("Please enter a username!");
           return;
-        } else if (!(/^\w+$/.test(this.username))) {
+        } else if (!(/^\w+$/.test(this.newUsername))) {
           alert("A username may only contain letters, numbers, and underscores.");
           return;
         }
 
         // check if username is already used
-        if (await this.checkIfTaken(this.username)) {
+        if (await this.checkIfTaken(this.newUsername)) {
           alert("Sorry, this username is already taken.");
           return;
         }
@@ -130,12 +129,12 @@ export async function SetupContent() {
 
         await this.$graffiti.put(
           {
-            channels: [this.username, "ajz-meet-profiles"],
+            channels: [this.newUsername, "ajz-meet-profiles"],
             value: {
               firstName: this.firstName,
               lastName: this.lastName,
               name: this.firstName + " " + this.lastName,
-              username: this.username,
+              username: this.newUsername,
               profilePicURL: this.profilePicURL,
 
               activity: 'CreateProfile',
@@ -149,6 +148,7 @@ export async function SetupContent() {
         );
 
         this.creating = false;
+        this.username = this.newUsername;
 
         this.$router.push(`/` + this.username + `/chats`);
       },
