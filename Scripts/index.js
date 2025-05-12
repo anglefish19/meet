@@ -45,17 +45,8 @@ const router = createRouter({
 let session;
 
 createApp({
-  setup() {
-    const username = ref("");
-
-    watch(username, (newValue, oldValue) => {
-      console.log("watch", oldValue, newValue);
-      if (oldValue && newValue && oldValue != newValue) {
-        this.$router.push("/" + oldValue + "/chats");
-      }
-    });
-
-    return { username };
+  data() {
+    return {username: ""}
   },
 
   components: {
@@ -81,6 +72,30 @@ createApp({
       });
     }
     document.addEventListener('username', this.getUsername);
+
+    router.beforeEach((to, from, next) => {
+      const fpath = from.path.split("/")[1];
+      const tpath = to.path.split("/")[1];
+
+      // console.log("FROM", from.path);
+      // console.log("FROM", fpath);
+      // console.log("TO", to.path);
+      
+      if (to.path == "/profile-setup") {
+        next();
+      } else if (tpath == undefined) {
+        alert("The page you're trying to access does not exist.");
+        next(false); // Abort navigation
+      } else {
+        const isAuthenticated = ((fpath == tpath) || !(tpath) || ((!fpath || fpath == "profile-setup") && this.verify(tpath)));
+        if (!isAuthenticated) {
+          alert("You are not authorized to access this page.");
+          next(false); // Abort navigation
+        } else {
+          next(); // Allow navigation
+        }
+      }
+    });
   },
 
   methods: {
@@ -118,21 +133,21 @@ createApp({
       this.username = username["username"];
     },
 
-    // async getUsernameFromActor() {
-    //   if (!this.$graffitiSession.value) {
-    //     return false;
-    //   }
-    //   const profiles = this.$graffiti.discover(
-    //     ["ajz-meet-profiles"], // channels
-    //     profileSchema // schema
-    //   );
-    //   const profileArray = [];
-    //   for await (const { object } of profiles) {
-    //     profileArray.push(object);
-    //   }
-    //   const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
-    //   return profile.value.username == this.username;
-    // },
+    async verify(username) {
+      if (!this.$graffitiSession.value) {
+        return false;
+      }
+      const profiles = this.$graffiti.discover(
+        ["ajz-meet-profiles"], // channels
+        profileSchema // schema
+      );
+      const profileArray = [];
+      for await (const { object } of profiles) {
+        profileArray.push(object);
+      }
+      const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
+      return profile.value.username == this.username;
+    },
 
     logout() {
       this.username = "";

@@ -134,7 +134,7 @@ img {
     padding-block-start: 0.5em;
 }
 
-#sidebar h2, #sidebar h3, #chat h2, #chat li {
+#sidebar h2, #sidebar h3, #sidebar li, #chat h2, #chat li {
     margin: 0;
     padding-inline: 1vw;
 }
