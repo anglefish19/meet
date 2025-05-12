@@ -50,14 +50,13 @@ export async function NewChatForm() {
           }
         }
 
-        // console.log(actualMembers);
-
         await this.$graffiti.put(
           {
             channels: [...actualMembers],
             value: {
               activity: 'Invite',
               target: "Chat",
+              owner: this.username,
               participants: actualMembers,
               title: this.newChatName,
               published: Date.now(),
@@ -75,7 +74,9 @@ export async function NewChatForm() {
         this.newChatName = "";
 
         this.$router.push(`/` + this.username + `/chats/` + chatName + `/` + channel);
-        alert("The following users have not been added to the chat because they don't exist: " + removedMembers.join(", "));
+        if (removedMembers.length > 0) {
+          alert("The following users have not been added to the chat because they don't exist: " + removedMembers.join(", "));
+        }
       },
     },
 

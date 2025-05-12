@@ -18,17 +18,16 @@
 body {
     margin: 0;
     height: 100vh;
-    overflow-y: hidden;
 }
 
 #app {
     display: grid;
-    grid-template-rows: 10vh 1fr;
+    grid-template-rows: 48pt 1fr;
 }
 
 header {
     display: grid;
-    grid-template-columns: 1fr 6em;
+    grid-template-columns: 1fr auto;
     background-color: var(--light);
     padding-inline: 0.5em;
     align-items: center;
@@ -48,10 +47,6 @@ h1, h2 {
     padding-block: 0.1em;
 }
 
-header button {
-    height: 100%;
-}
-
 button,
 input[type="submit"] {
     background-color: var(--light);
@@ -65,9 +60,13 @@ input[type="submit"] {
 
 button:hover,
 input[type="submit"]:hover,
-.imgIcon:hover {
+.imgIcon:hover, .smallIcon img:hover {
     background-color: var(--lightHover);
     cursor: pointer;
+}
+
+header button {
+    padding: 12pt;
 }
 
 div,
@@ -105,7 +104,7 @@ nav {
     font: inherit;
     border-radius: 0;
     appearance: none;
-    transition: 300ms;
+    transition: background-color 300ms;
 }
 
 img {
@@ -139,13 +138,13 @@ img {
     padding-inline: 1vw;
 }
 
-#sidebar input, #sidebar button {
+#sidebar input, #sidebar button, #sidebar textarea {
     margin-inline: 1vw;
 }
 
 #chat {
     display: grid;
-    grid-template-rows: 2em 1fr 4em;
+    grid-template-rows: 2vh 1fr 10vh;
     width: 100%;
 }
 
@@ -166,9 +165,9 @@ img {
 #sendbar {
     display: grid;
     grid-template-columns: 3em 1fr;
-    gap: 0.5em;
+    gap: 0.5vw;
     /* grid-template-columns: 5em 1fr; */
-    padding-block: 0.25em;
+    padding-block: 0.25vh;
     padding-inline-start: 0.5vw;
 }
 
@@ -178,9 +177,18 @@ img {
     /* grid-template-columns: 1fr 1fr; */
 }
 
-#sendbar img {
+#chat img {
     filter: invert(0);
     max-width: 70%;
+    align-content: center;
+}
+
+.smallIcon img {
+    position: absolute;
+    top: 48pt;
+    right: 6pt;
+    padding: 6pt;
+    height: 1em;
 }
 
 #sendbar form {
@@ -188,11 +196,16 @@ img {
     grid-template-columns: 1fr 5em;
 }
 
-#sendbar textarea {
+#sendbar textarea, #sendbar input[type="submit"] {
     width: 100%;
     height: 32pt;
     align-self: center;
     align-content: center;
+}
+
+#sendbar input[type="submit"] {
+    width: 80%;
+    height: 36pt;
 }
 
 .chat {
@@ -209,8 +222,8 @@ input {
     margin: 3px;
 }
 
-input[type="text"] {
-    width: 300px;
+input[type="text"], #sidebar textarea {
+    width: 20vw;
 }
 
 :checked+input[type="text"] {
@@ -361,20 +374,34 @@ input[type="file"] {
 }
 
 .scheduler-setup {
+    align-items: end;
+    grid-template-rows: 5em min-content;
     justify-items: center;
+}
+
+.scheduler .exitIcon {
+    position: absolute;
+    justify-self: center;
+}
+
+.scheduler-grid .exitIcon {
+    position: relative;
+    align-self: center;
+}
+
+.scheduler-grid .exitIcon {
+    height: 30pt;
+    width: 30pt;
+}
+
+.scheduler-grid .schedulerTop {
+    display: grid;
+    grid-template-columns: 1em 1fr 1em;
 }
 
 .scheduler-setup form {
     display: grid;
     justify-items: center;
-}
-
-.scheduler-setup {
-    align-items: end;
-    grid-template-rows: 5em min-content;
-}
-
-.scheduler-setup form {
     align-items: center;
     grid-template-rows: min-content;
 }
@@ -395,6 +422,66 @@ input[type="file"] {
 .dateLabels {
     justify-items: center;
     gap: 4px;
+}
+
+#membersList {
+    text-align: center;
+    justify-content: center;
+}
+
+#membersList ul {
+    text-align: left;
+}
+
+#membersList li span:first-child {
+    display: block;
+    width: 20vw;
+    align-content: center;
+}
+
+#membersList li span {
+    height: 28pt;
+}
+
+#membersList button {
+    width: 70px;
+    font-size: 12pt;
+}
+
+.exitIcon img {
+    padding: 2pt;
+    height: 1em;
+    align-self: center;
+}
+
+.exitIcon {
+    padding-inline: 6pt;
+}
+
+.revealMenu {
+    display: block;
+}
+
+#chatMenu nav{
+    display: block;
+    position: absolute;
+    top: 80pt;
+    right: 6pt;
+    width: 12em;
+    height: min-content;
+}
+
+#chatMenu button {
+    width: 12em;
+    height: min-content;
+    padding: 0;
+    padding-block: 3px;
+    margin: 0;
+    margin-bottom: 6px;
+}
+
+#chatMenu button:nth-last-child(2), #chatMenu button:nth-child(3) {
+    margin-top:6px
 }
 
 #grid, .individual-scheduler {
@@ -462,6 +549,11 @@ input[type="file"] {
     border: 2px solid var(--medium);
 }
 
+img.selected, button.selected {
+    border: 0px;
+    background-color: var(--medium);
+}
+
 .dragging-area {
     position: absolute;
     background: var(--lightST);
@@ -469,12 +561,15 @@ input[type="file"] {
     border: 1px solid var(--medium);
 }
 
-.revealScheduler {
+.revealScheduler, .revealMembersList {
     display: grid;
     position: absolute;
     width: 70vw;
     height: 70%;
-    margin-top: 3em;
     background-color: white;
     overflow: scroll;
+}
+
+.revealScheduler {
+    margin-top: 3em;
 }

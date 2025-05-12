@@ -29,6 +29,7 @@ export async function ChatWindow() {
         revising: false,
         members: "",
         newMembers: "",
+        memberNames: {},
 
         chatSchema: {
           properties: {
@@ -145,6 +146,14 @@ export async function ChatWindow() {
       setupOptions(endTime);
       this.startTime = 8;
       this.endTime = 22;
+
+      document.addEventListener('click', (e) => {
+        if (e.target.closest("button") != document.querySelector("#chatMenuOptions") && document.querySelector("#chatMenuOptions")) {
+          document.querySelector("#chatMenuOptions img").classList.remove("selected");
+          document.querySelector("#chatMenuOptions").classList.remove("selected");
+          document.querySelector("#chatMenu").classList.remove("revealMenu");
+        }
+      })
     },
 
     methods: {
@@ -187,7 +196,6 @@ export async function ChatWindow() {
         else {
           members = members.split(",");
         }
-
         let actualMembers = [];
         const removedMembers = [];
         for (const m of members) {
@@ -203,12 +211,14 @@ export async function ChatWindow() {
           if (profile) {
             // console.log(profile.actor);
             // console.log(m);
-            allowed.push(profile.actor);
+            // allowed.push(profile.actor);
             actualMembers.push(m);
           } else {
             removedMembers.push(m);
           }
         }
+
+        this.chatMembers = [...actualMembers];
 
         const channels = new Set(actualMembers);
         invite.channels.map(c => channels.add(c));
@@ -245,33 +255,18 @@ export async function ChatWindow() {
           this.$graffitiSession.value,
         );
 
-        alert("The following users have not been added to the chat because they don't exist: " + removedMembers.join(", "));
+        if (removedMembers.length > 0) {
+          alert("The following users have not been added to the chat because they don't exist: " + removedMembers.join(", "));
+        }
+
+        await this.getMemberNames();
+        this.toggleMembersList();
       },
 
-      async removeMember(invite, member, isOwner) {
-        let actor;
-        if (isOwner && invite.value.participants.length == 1) {
-          this.deleteChat(invite);
-          return;
-        } else if (isOwner) {
-          actor = invite.value.participants.filter((p) => p !== member)[0];
-        } else {
-          actor = invite.actor;
-        }
-        await this.$graffiti.put(
-          {
-            ...invite,
-            channels: invite.channels.filter((c) => c !== member),
-            value: {
-              ...invite.value,
-              participants: invite.value.participants.filter((p) => p !== member),
-            },
-            allowed: invite.allowed.filter((a) => a !== member),
-            actor: actor
-          },
-          this.$graffitiSession.value,
-        );
-      },
+      // TODO
+      // async removeMember(invite, member) {
+        
+      // },
 
       async sendMessage() {
         if (!this.message) {
@@ -600,8 +595,23 @@ export async function ChatWindow() {
         // reset scheduler if necessary
         if (document.querySelector('.scheduler').classList.contains("revealScheduler")) {
           this.showForm();
+          document.querySelector('#sendbar button').classList.toggle("selected");
+          document.querySelector('#sendbar img').classList.toggle("selected");
         }
         document.querySelector('.scheduler').classList.toggle("revealScheduler");
+      },
+
+      toggleSelected(event) {
+        event.target.closest("button").classList.toggle("selected");
+        event.target.closest("img").classList.toggle("selected");
+      },
+
+      toggleMenu() {
+        document.querySelector('#chatMenu').classList.toggle("revealMenu");
+      },
+
+      toggleMembersList() {
+        document.querySelector('#membersList').classList.toggle("revealMembersList");
       },
 
       showForm() {
@@ -613,6 +623,15 @@ export async function ChatWindow() {
         document.querySelectorAll(".scheduler-setup")[document.querySelectorAll(".scheduler-setup").length - 1].classList.remove("reveal");
         document.querySelectorAll(".scheduler-grid")[document.querySelectorAll(".scheduler-grid").length - 1].classList.add("reveal");
         console.log(document.querySelector(".scheduler-grid"));
+      },
+
+      // TODO
+      removeUser() {
+
+      },
+
+      leave() {
+
       },
 
       async getUsernameFromActor() {
@@ -646,9 +665,27 @@ export async function ChatWindow() {
           if (chat) {
             chat.value.participants.map(m => this.chatMembers.push(m));
           }
+
+          await this.getMemberNames();
         }
       },
 
+      async getMemberNames() {
+        for (const m of this.chatMembers) {
+          const profiles = this.$graffiti.discover(
+            // channels
+            ["ajz-meet-profiles"],
+            // schema
+            this.profileSchema
+          );
+          const profileArray = [];
+          for await (const { object } of profiles) {
+            profileArray.push(object);
+          }
+          const name = profileArray.filter(p => p.value.username == m)[0].value.name;
+          this.memberNames[m] = name;
+        }
+      }
       // async deleteObject(object) {
       //   await this.$graffiti.delete(object.url, this.$graffitiSession.value);
       // }

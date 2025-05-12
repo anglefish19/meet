@@ -31,10 +31,10 @@
                 <span v-else>meet</span>
             </h1>
             <button v-if="!$graffitiSession.value" @click="$graffiti.login()">
-                Log In
+                log in
             </button>
             <button v-else @click="$graffiti.logout($graffitiSession.value)">
-                Log Out
+                log out
             </button>
         </header>
         

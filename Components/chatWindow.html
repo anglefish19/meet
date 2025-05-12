@@ -5,29 +5,41 @@
         <section v-else class="chatWindow" v-for="invite of invitations">
             <h2>
                 {{invite.value.title}}
-                <span v-if="invite.actor === $graffitiSession.value.actor" class="toBeRevised">
-                    <button class="imgIcon icon" @click="renameChat(invite)">✏️</button>
-                    <button class="imgIcon icon" @click="deleteChat(invite)">🗑️</button>
-                    <!-- <button class="imgIcon icon" @click="removeMember(invite, $graffitiSession.value.actor, invite.actor == $graffitiSession.value.actor)">🚪➡️</button> -->
-                    <button @click="addMembers(invite)">Add Members</button>
-                </span>
+                <button id="chatMenuOptions" class="imgIcon smallIcon" @click="toggleMenu"><img src="./Icons/Menu.svg"
+                        @click="toggleSelected" /></button>
             </h2>
-
-            <!-- <form @submit.prevent="addMembers(this.channel, newMembers)">
-                <fieldset :disabled="adding">
-                    <input type="text" v-model="newMembers" placeholder='chat members (separate members using ", ")'
-                        ref="newChatMembersInput" />
-                    <input type="submit" :value="adding? 'adding members...' : 'add members'" />
-                </fieldset>
-            </form> -->
+            <section id="chatMenu" class="hiddenUnlessReveal">
+                <nav>
+                    <button @click="toggleMembersList">view members</button>
+                    <button v-if="invite.actor === $graffitiSession.value.actor" @click="addMembers(invite)">add members</button>
+                    <button v-if="invite.actor === $graffitiSession.value.actor" @click="renameChat(invite)">rename chat</button>
+                    <button @click="leave">leave chat</button>
+                    <button v-if="invite.actor === $graffitiSession.value.actor" @click="deleteChat(invite)">delete chat</button>
+                </nav>
+            </section>
+            <!-- TODO: remove revealMembersList when finished -->
+            <section id="membersList" class="hiddenUnlessReveal revealMembersList">
+                <div><button class="imgIcon exitIcon" @click="toggleMembersList"><img src="./Icons/Exit.svg" /></button>
+                </div>
+                <h2>members list</h2>
+                <ul>
+                    <li v-for="m of invite.value.participants.sort((a, b) => a.localeCompare(b))" :key="m">
+                        <span>{{this.memberNames[m]}} ({{m}})</span>
+                        <span v-if="m == invite.value.owner" class="italic">owner</span>
+                        <button v-else-if="m == this.username && invite.actor != $graffitiSession.value.actor" @click="leave">leave</button>
+                        <button v-else-if="invite.actor === $graffitiSession.value.actor && m != this.username" @click="removeMember(m)">remove</button>
+                    </li>
+                </ul>
+            </section>
         </section>
     </graffiti-discover>
     <h2 v-else>no chat selected</h2>
 
-    <graffiti-discover autopoll v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]" :schema="this.messageSchema">
+    <graffiti-discover autopoll v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]"
+        :schema="this.messageSchema">
         <!-- <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]" :schema="this.messageSchema"> -->
         <!-- {{messageObjects}} -->
-         <!-- {{messageObjects}} -->
+        <!-- {{messageObjects}} -->
         <ul v-scroll-bottom>
             <li v-if="isInitialPolling">Loading...</li>
             <li v-for="object of messageObjects.sort((a, b) => a.value.published - b.value.published)"
@@ -35,10 +47,12 @@
                 <section class="message">
                     <strong>
                         <span v-if="object.value.username">{{ object.value.username }}</span>
-                        <span v-if="object.actor===$graffitiSession.value.actor && object.value.messageType == 'text'"> (you)</span>
+                        <span v-if="object.actor===$graffitiSession.value.actor && object.value.messageType == 'text'">
+                            (you)</span>
                         <span v-else-if="object.value.messageType == 'scheduler'">system</span>
-                    </strong>: 
-                    <span v-if="object.value.messageType == 'scheduler'" class="italic">{{ object.value.content }}</span>
+                    </strong>:
+                    <span v-if="object.value.messageType == 'scheduler'" class="italic">{{ object.value.content
+                        }}</span>
                     <span v-else>{{ object.value.content }}</span>
                 </section>
 
@@ -52,16 +66,10 @@
                     </span>
                 </section>
                 <section v-else></section>
-                
+
                 <section v-if="object.value.messageType == 'scheduler'">
-                    <Scheduler 
-                    :schedulerTitle=object.value.title 
-                    :channel="channel" 
-                    :schedulerSchema="schedulerSchema" 
-                    :schedulerObject='object' 
-                    :offset="offset"
-                    :username="username"
-                ></Scheduler>
+                    <Scheduler :schedulerTitle=object.value.title :channel="channel" :schedulerSchema="schedulerSchema"
+                        :schedulerObject='object' :offset="offset" :username="username"></Scheduler>
                 </section>
 
                 <form class="hiddenUnlessReveal" @submit.prevent="editMessage($event, object)">
@@ -73,10 +81,9 @@
     </graffiti-discover>
 
     <section id="sendbar" v-if="this.channel">
-        <!-- TODO: add in scheduler + activity functionality -->
         <section>
-            <button class="imgIcon" @click="toggleScheduler()"><img src="./Icons/Scheduler Icon.svg"></button>
-            <!-- <button class="imgIcon"><img src="./Icons/Activity Suggester Icon.svg"></button> -->
+            <button class="imgIcon" @click="toggleScheduler()"><img src="./Icons/Scheduler Icon.svg"
+                    @click="toggleSelected"></button>
         </section>
         <form @submit.prevent="sendMessage()">
             <fieldset :disabled="sending">
@@ -88,6 +95,7 @@
 
     <!-- SCHEDULER STUFF -->
     <section class="scheduler hiddenUnlessReveal">
+        <button class="imgIcon exitIcon" @click="toggleScheduler"><img src="./Icons/Exit.svg" /></button>
         <section class="scheduler-setup hiddenUnlessReveal reveal">
             <h2>scheduler setup</h2>
 
@@ -116,7 +124,11 @@
         </section>
 
         <section class="scheduler-grid hiddenUnlessReveal">
-            <h2>{{this.schedulerTitle}}</h2>
+            <span class="schedulerTop">
+                <button class="imgIcon exitIcon" @click="showForm"><img src="./Icons/Back.svg" /></button>
+                <h2>{{this.schedulerTitle}}</h2>
+            </span>
+
             <div>
                 <span class="empty"></span>
                 <section class="dateLabels scroll1" id="dateLabels">
