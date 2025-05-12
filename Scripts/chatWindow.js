@@ -188,27 +188,49 @@ export async function ChatWindow() {
           members = members.split(",");
         }
 
-        const channels = new Set(members);
-        invite.channels.map(c => channels.add(c));
-
-        invite.value.participants.map(p => members.push(p));
-        members = [...new Set(members)];
-
-        const allowed = [];
+        let actualMembers = [];
+        const removedMembers = [];
         for (const m of members) {
           const profiles = this.$graffiti.discover(
-            [m], // channels
+            ["ajz-meet-profiles"], // channels
             this.profileSchema // schema
           );
           const profileArray = [];
           for await (const { object } of profiles) {
             profileArray.push(object);
           }
-          const profile = profileArray[0];
-          if (profile.actor) {
+          const profile = profileArray.filter(p => p.value.username == m)[0];
+          if (profile) {
+            // console.log(profile.actor);
+            // console.log(m);
             allowed.push(profile.actor);
+            actualMembers.push(m);
+          } else {
+            removedMembers.push(m);
           }
         }
+
+        const channels = new Set(actualMembers);
+        invite.channels.map(c => channels.add(c));
+
+        invite.value.participants.map(p => actualMembers.push(p));
+        actualMembers = [...new Set(actualMembers)];
+
+        // const allowed = [];
+        // for (const m of actualMembers) {
+        //   const profiles = this.$graffiti.discover(
+        //     [m], // channels
+        //     this.profileSchema // schema
+        //   );
+        //   const profileArray = [];
+        //   for await (const { object } of profiles) {
+        //     profileArray.push(object);
+        //   }
+        //   const profile = profileArray[0];
+        //   if (profile.actor) {
+        //     allowed.push(profile.actor);
+        //   }
+        // }
 
         await this.$graffiti.put(
           {
@@ -216,12 +238,14 @@ export async function ChatWindow() {
             channels: [...channels],
             value: {
               ...invite.value,
-              participants: members,
+              participants: actualMembers,
             },
             // allowed: [...allowed],
           },
           this.$graffitiSession.value,
         );
+
+        alert("The following users have not been added to the chat because they don't exist: " + removedMembers.join(", "));
       },
 
       async removeMember(invite, member, isOwner) {

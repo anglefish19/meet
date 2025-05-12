@@ -76,10 +76,6 @@ createApp({
     router.beforeEach((to, from, next) => {
       const fpath = from.path.split("/")[1];
       const tpath = to.path.split("/")[1];
-
-      // console.log("FROM", from.path);
-      // console.log("FROM", fpath);
-      // console.log("TO", to.path);
       
       if (to.path == "/profile-setup") {
         next();

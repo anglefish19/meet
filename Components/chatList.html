@@ -13,7 +13,7 @@
             <router-link class="chat" :to = "`/` + this.username + `/new-chat`">Create a chat to get started!</router-link>
         </li>
 
-        <li v-for="invite of invitations.sort((a, b) => b.value.published - a.value.published)"
+        <li v-for="invite of invitations.sort((a, b) => a.value.title.localeCompare(b.value.title))"
             :key="invite.id">
 
             <router-link class="chat" :to = "`/` + this.username + `/chats/` + invite.value.title + `/` + invite.value.channel">

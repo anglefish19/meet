@@ -28,31 +28,37 @@ export async function NewChatForm() {
         }
 
         const allowed = [];
+        const actualMembers = [];
+        const removedMembers = [];
         for (const m of this.members) {
           const profiles = this.$graffiti.discover(
-            // channels
-            [m],
-            // schema
-            this.profileSchema
+            ["ajz-meet-profiles"], // channels
+            this.profileSchema // schema
           );
           const profileArray = [];
           for await (const { object } of profiles) {
             profileArray.push(object);
           }
-          const profile = profileArray[0];
-          if (profile.actor) {
+          const profile = profileArray.filter(p => p.value.username == m)[0];
+          if (profile) {
+            // console.log(profile.actor);
+            // console.log(m);
             allowed.push(profile.actor);
+            actualMembers.push(m);
+          } else {
+            removedMembers.push(m);
           }
         }
 
-        // TODO: FIX ALLOWED
+        // console.log(actualMembers);
+
         await this.$graffiti.put(
           {
-            channels: [...this.members],
+            channels: [...actualMembers],
             value: {
               activity: 'Invite',
               target: "Chat",
-              participants: this.members,
+              participants: actualMembers,
               title: this.newChatName,
               published: Date.now(),
               channel: channel,
@@ -69,6 +75,7 @@ export async function NewChatForm() {
         this.newChatName = "";
 
         this.$router.push(`/` + this.username + `/chats/` + chatName + `/` + channel);
+        alert("The following users have not been added to the chat because they don't exist: " + removedMembers.join(", "));
       },
     },
 
