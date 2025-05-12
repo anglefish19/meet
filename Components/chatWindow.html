@@ -1,8 +1,8 @@
 <section id="chat">
     <graffiti-discover v-if="this.channel" v-slot="{ objects: invitations, isInitialPolling }"
         :channels="[this.username]" :schema="chatSchema">
-        <!-- {{invitations}} -->
-        <section class="chatWindow" v-for="invite of invitations">
+        <p v-if="isInitialPolling">Loading...</p>
+        <section v-else class="chatWindow" v-for="invite of invitations">
             <h2>
                 {{invite.value.title}}
                 <span v-if="invite.actor === $graffitiSession.value.actor" class="toBeRevised">
@@ -24,15 +24,15 @@
     </graffiti-discover>
     <h2 v-else>no chat selected</h2>
 
-    <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]" :schema="this.messageSchema">
+    <graffiti-discover autopoll v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]" :schema="this.messageSchema">
         <!-- <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]" :schema="this.messageSchema"> -->
         <!-- {{messageObjects}} -->
          <!-- {{messageObjects}} -->
-        <ul>
+        <ul v-scroll-bottom>
             <li v-if="isInitialPolling">Loading...</li>
             <li v-for="object of messageObjects.sort((a, b) => a.value.published - b.value.published)"
                 :key="object.url">
-                <section>
+                <section class="message">
                     <strong>
                         <span v-if="object.value.username">{{ object.value.username }}</span>
                         <span v-if="object.actor===$graffitiSession.value.actor && object.value.messageType == 'text'"> (you)</span>
@@ -80,7 +80,7 @@
         </section>
         <form @submit.prevent="sendMessage()">
             <fieldset :disabled="sending">
-                <input type="text" v-model="message" placeholder="message" ref="messageInput" />
+                <textarea v-model="message" placeholder="message" ref="messageInput"></textarea>
                 <input type="submit" :value="sending? 'sending...' : 'send'" />
             </fieldset>
         </form>
@@ -119,13 +119,13 @@
             <h2>{{this.schedulerTitle}}</h2>
             <div>
                 <span class="empty"></span>
-                <section class="dateLabels" id="dateLabels">
+                <section class="dateLabels scroll1" id="dateLabels">
                 </section>
             </div>
             <div>
                 <section class="timeLabels" id="timeLabels">
                 </section>
-                <section id="grid">
+                <section class="scroll2" id="grid">
                 </section>
             </div>
             <span>

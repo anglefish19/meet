@@ -205,6 +205,23 @@ export async function Scheduler() {
             this.isDragging = false;
           }
         });
+
+        // Synchronize scrolling
+        const scroll1 = document.querySelectorAll('.sentSchedulerGrid')[this.index].querySelector(".scroll1");
+        const scroll2 = document.querySelectorAll('.sentSchedulerGrid')[this.index].querySelector(".scroll2");
+        
+        
+        scroll1.addEventListener("scroll", () => {
+          scroll2.scrollLeft = scroll1.scrollLeft;
+        });
+
+        // NOT SURE WHY SCROLL2 WIDTH > SCROLL 1 WIDTH...
+        scroll2.addEventListener("scroll", () => {
+          scroll1.scrollLeft = scroll2.scrollLeft;
+          if (scroll1.scrollLeft < scroll2.scrollLeft) {
+            scroll2.scrollLeft = scroll1.scrollLeft;
+          }
+        });
       },
 
       async saveAvailability() {

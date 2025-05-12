@@ -11,6 +11,7 @@ export async function UserContent() {
 
     data() {
       return {
+        clickedChannel: this.channel,
         profileSchema: {
           properties: {
             value: {
@@ -66,6 +67,12 @@ export async function UserContent() {
       ChatWindow: defineAsyncComponent(ChatWindow),
       Profile: defineAsyncComponent(Profile),
       Calendar: defineAsyncComponent(Calendar),
+    },
+
+    methods: {
+      getChannel(channel) {
+        this.clickedChannel = channel;
+      }
     },
 
     // methods: {

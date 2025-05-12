@@ -1,14 +1,16 @@
+<!-- <div class="centerContent"> -->
 <section class="scheduler-grid sentSchedulerGrid">
     <h2>{{this.schedulerTitle}}</h2>
-    <div>
+
+    <div class="schedulerContainer">
         <span class="empty"></span>
-        <section class="dateLabels">
+        <section class="dateLabels scroll1">
         </section>
     </div>
-    <div>
+    <div class="schedulerContainer">
         <section class="timeLabels">
         </section>
-        <section class="individual-scheduler">
+        <section class="individual-scheduler scroll2">
         </section>
     </div>
     <span>
@@ -16,3 +18,4 @@
         <button @click="saveAvailability">save selected availability</button>
     </span>
 </section>
+<!-- </div> -->

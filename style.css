@@ -18,7 +18,7 @@
 body {
     margin: 0;
     height: 100vh;
-    overflow: hidden;
+    overflow-y: hidden;
 }
 
 #app {
@@ -43,8 +43,7 @@ h1 {
     margin-inline-start: 0.25em;
 }
 
-h1,
-h2 {
+h1, h2 {
     margin-block: 0;
     padding-block: 0.1em;
 }
@@ -85,7 +84,7 @@ main,
 
 .sideAndChatLayout {
     display: grid;
-    grid-template-columns: 25em 1fr;
+    grid-template-columns: 25vw 1fr;
 }
 
 nav {
@@ -132,23 +131,27 @@ img {
 
 #sidebar,
 #chat {
-    padding-inline: 1em;
     padding-block-start: 0.5em;
 }
 
-#sidebar h2,
-#sidebar h3 {
+#sidebar h2, #sidebar h3, #chat h2, #chat li {
     margin: 0;
+    padding-inline: 1vw;
+}
+
+#sidebar input, #sidebar button {
+    margin-inline: 1vw;
 }
 
 #chat {
     display: grid;
     grid-template-rows: 2em 1fr 4em;
+    width: 100%;
 }
 
 #chat ul {
     height: 70vh;
-    overflow: auto;
+    overflow-y: auto;
 }
 
 #chat h2 .imgIcon {
@@ -166,6 +169,7 @@ img {
     gap: 0.5em;
     /* grid-template-columns: 5em 1fr; */
     padding-block: 0.25em;
+    padding-inline-start: 0.5vw;
 }
 
 #sendbar section {
@@ -184,8 +188,11 @@ img {
     grid-template-columns: 1fr 5em;
 }
 
-#sendbar form input[type="text"] {
+#sendbar textarea {
     width: 100%;
+    height: 32pt;
+    align-self: center;
+    align-content: center;
 }
 
 .chat {
@@ -386,9 +393,12 @@ input[type="file"] {
 .scheduler-grid,
 #grid, .individual-scheduler,
 .dateLabels {
-    justify-content: center;
     justify-items: center;
     gap: 4px;
+}
+
+#grid, .individual-scheduler {
+    padding-inline: 4px;
 }
 
 .dateLabels {
@@ -405,6 +415,12 @@ input[type="file"] {
     display: grid;
     grid-template-columns: 75px 1fr 75px;
     gap: 10px;
+    
+}
+
+.scroll1, .scroll2 {
+    overflow: auto;
+    max-width: 30vw;
 }
 
 .scheduler-grid button {
@@ -414,7 +430,11 @@ input[type="file"] {
 
 #grid, .individual-scheduler {
     display: grid;
-    padding-block-end: 1em;
+}
+
+.message {
+    max-width: 65vw;
+    overflow: auto;
 }
 
 .scheduler-grid h3 {
@@ -452,14 +472,9 @@ input[type="file"] {
 .revealScheduler {
     display: grid;
     position: absolute;
-    width: 67vw;
+    width: 70vw;
     height: 70%;
     margin-top: 3em;
-    justify-self: center;
     background-color: white;
     overflow: scroll;
-}
-
-#chat ul li:last-child {
-    padding-bottom: 16pt;
 }

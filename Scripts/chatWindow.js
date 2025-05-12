@@ -1,4 +1,4 @@
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, nextTick } from "vue";
 import { Scheduler } from "./scheduler.js";
 
 export async function ChatWindow() {
@@ -436,7 +436,24 @@ export async function ChatWindow() {
             this.isDragging = false;
           }
         });
+
         this.showGrid();
+
+        // Synchronize scrolling
+        const scroll1 = document.querySelector('#dateLabels');
+        const scroll2 = document.querySelector('#grid');
+
+        scroll1.addEventListener("scroll", () => {
+          scroll2.scrollLeft = scroll1.scrollLeft;
+        });
+
+        // NOT SURE WHY SCROLL2 WIDTH > SCROLL 1 WIDTH...
+        scroll2.addEventListener("scroll", () => {
+          scroll1.scrollLeft = scroll2.scrollLeft;
+          if (scroll1.scrollLeft < scroll2.scrollLeft) {
+            scroll2.scrollLeft = scroll1.scrollLeft;
+          }
+        });
       },
 
       async sendScheduler() {
@@ -455,7 +472,7 @@ export async function ChatWindow() {
         //   [this.channel], // channels
         //   this.schedulerSchema // schema
         // );
-        
+
         // const schedulersArray = [];
         // for await (const { object } of schedulers) {
         //   schedulersArray.push(object);
@@ -595,7 +612,7 @@ export async function ChatWindow() {
             [this.username], // channels
             this.chatSchema // schema
           );
-          
+
           const chatsArray = [];
           for await (const { object } of userChats) {
             chatsArray.push(object);

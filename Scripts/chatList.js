@@ -13,7 +13,6 @@ export async function ChatList() {
         adding: false,
         sending: false,
         revising: false,
-        channels: ["designftw"],
         currentChat: "no chat selected",
         currentChatName: "no chat selected",
         members: "",
@@ -25,11 +24,6 @@ export async function ChatList() {
     },
 
     methods: {
-      updateCurrentChat(chat) {
-        this.currentChat = chat;
-        this.currentChatName = chat.name;
-      },
-
       async editChatName(e, chatObject) {
         if (!this.newChatName) {
           alert("Please enter a name for the chat first!");

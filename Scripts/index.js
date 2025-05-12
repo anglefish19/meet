@@ -1,4 +1,4 @@
-import { createApp, defineAsyncComponent } from "vue";
+import { ref, watch, createApp, defineAsyncComponent } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 import { GraffitiLocal } from "@graffiti-garden/implementation-local";
 import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
@@ -45,10 +45,17 @@ const router = createRouter({
 let session;
 
 createApp({
-  data() {
-    return {
-      username: "",
-    }
+  setup() {
+    const username = ref("");
+
+    watch(username, (newValue, oldValue) => {
+      console.log("watch", oldValue, newValue);
+      if (oldValue && newValue && oldValue != newValue) {
+        this.$router.push("/" + oldValue + "/chats");
+      }
+    });
+
+    return { username };
   },
 
   components: {
@@ -64,11 +71,11 @@ createApp({
       this.$graffiti.sessionEvents.addEventListener('login', () => {
         this.setupProfile();
       });
-      
+
       this.$graffiti.sessionEvents.addEventListener('logout', () => {
         this.logout();
       });
-    } else{
+    } else {
       this.$graffiti.sessionEvents.addEventListener('logout', () => {
         this.logout();
       });
@@ -111,13 +118,21 @@ createApp({
       this.username = username["username"];
     },
 
-    // NOT SURE IF I'LL NEED THIS
-    copyActor() {
-      navigator.clipboard.writeText(
-        this.$graffitiSession.value.actor,
-      );
-      alert("copied!");
-    },
+    // async getUsernameFromActor() {
+    //   if (!this.$graffitiSession.value) {
+    //     return false;
+    //   }
+    //   const profiles = this.$graffiti.discover(
+    //     ["ajz-meet-profiles"], // channels
+    //     profileSchema // schema
+    //   );
+    //   const profileArray = [];
+    //   for await (const { object } of profiles) {
+    //     profileArray.push(object);
+    //   }
+    //   const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
+    //   return profile.value.username == this.username;
+    // },
 
     logout() {
       this.username = "";
@@ -129,5 +144,10 @@ createApp({
     graffiti: new GraffitiLocal(),
     // graffiti: new GraffitiRemote(),
   })
-  .use(router)
+  // borrowed from Carolina's app
+  .directive('scroll-bottom', {
+    updated(el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }).use(router)
   .mount("#app");

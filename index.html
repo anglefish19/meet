@@ -26,7 +26,7 @@
 <body>
     <div id="app">
         <header>
-            <h1>
+            <h1 ref="heading">
                 <router-link v-if="this.username" :to="`/` + this.username + `/chats`">meet | {{this.username}}</router-link>
                 <span v-else>meet</span>
             </h1>
