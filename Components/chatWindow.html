@@ -79,7 +79,7 @@
     <section id="sendbar" v-if="this.channel">
         <section>
             <button class="imgIcon" @click="toggleScheduler()"><img src="./Icons/Scheduler Icon.svg"
-                    @click="toggleSelected"></button>
+                ></button>
         </section>
         <form @submit.prevent="sendMessage()">
             <fieldset :disabled="sending">

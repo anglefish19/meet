@@ -577,8 +577,11 @@ export async function ChatWindow() {
         // reset scheduler if necessary
         if (document.querySelector('.scheduler').classList.contains("revealScheduler")) {
           this.showForm();
-          document.querySelector('#sendbar button').classList.toggle("selected");
-          document.querySelector('#sendbar img').classList.toggle("selected");
+          document.querySelector('#sendbar button').classList.remove("selected");
+          document.querySelector('#sendbar img').classList.remove("selected");
+        } else {
+          document.querySelector('#sendbar button').classList.add("selected");
+          document.querySelector('#sendbar img').classList.add("selected");
         }
         document.querySelector('.scheduler').classList.toggle("revealScheduler");
       },
