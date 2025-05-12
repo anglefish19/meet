@@ -17,8 +17,7 @@
                     <button v-if="invite.actor === $graffitiSession.value.actor" @click="deleteChat(invite)">delete chat</button>
                 </nav>
             </section>
-            <!-- TODO: remove revealMembersList when finished -->
-            <section id="membersList" class="hiddenUnlessReveal revealMembersList">
+            <section id="membersList" class="hiddenUnlessReveal">
                 <div><button class="imgIcon exitIcon" @click="toggleMembersList"><img src="./Icons/Exit.svg" /></button>
                 </div>
                 <h2>members list</h2>
@@ -37,9 +36,6 @@
 
     <graffiti-discover autopoll v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]"
         :schema="this.messageSchema">
-        <!-- <graffiti-discover v-slot="{ objects: messageObjects, isInitialPolling }" :channels="[this.channel]" :schema="this.messageSchema"> -->
-        <!-- {{messageObjects}} -->
-        <!-- {{messageObjects}} -->
         <ul v-scroll-bottom>
             <li v-if="isInitialPolling">Loading...</li>
             <li v-for="object of messageObjects.sort((a, b) => a.value.published - b.value.published)"

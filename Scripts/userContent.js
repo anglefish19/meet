@@ -3,7 +3,6 @@ import { NavBar } from "./navbar.js";
 import { SideBar } from "./sidebar.js";
 import { ChatWindow } from "./chatWindow.js";
 import { Profile } from "./profile.js";
-import { Calendar } from "./calendar.js";
 
 export async function UserContent() {
   return {
@@ -65,8 +64,7 @@ export async function UserContent() {
       NavBar: defineAsyncComponent(NavBar),
       SideBar: defineAsyncComponent(SideBar),
       ChatWindow: defineAsyncComponent(ChatWindow),
-      Profile: defineAsyncComponent(Profile),
-      Calendar: defineAsyncComponent(Calendar),
+      Profile: defineAsyncComponent(Profile)
     },
 
     methods: {
@@ -74,30 +72,6 @@ export async function UserContent() {
         this.clickedChannel = channel;
       }
     },
-
-    // methods: {
-    //   async checkAuth() {
-    //     const profiles = this.$graffiti.discover(
-    //       // channels
-    //       ["ajz-meet-profiles"],
-    //       // schema
-    //       this.profileSchema
-    //     );
-  
-    //     const profileArray = [];
-    //     for await (const { object } of profiles) {
-    //       profileArray.push(object);
-    //     }
-    //     const profile = profileArray.filter(p => p.actor == this.$graffitiSession.value.actor)[0];
-    //     if (profile) {
-    //       if (!profile.value.username == this.$route.path.split("/")[1])
-    //       router.push("/" + profile.value.username + "/chats");
-    //     } else {
-    //       router.push("/profile-setup");
-    //     }
-    //     return false;
-    //   }
-    // },
 
     template: await fetch("./Components/userContent.html").then((r) => r.text()),
   };

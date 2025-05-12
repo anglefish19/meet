@@ -1,6 +1,4 @@
 <section class="profile">
-    <!-- TODO: DELETE COMMENT (for debugging only) -->
-    <!-- <button @click="recoverOrphans()"></button> -->
     <graffiti-discover v-slot="{ objects: profileObjects, isInitialPolling }"
         :channels="[this.username]" :schema="this.profileSchema">
         <div v-for="profile of profileObjects">
@@ -11,17 +9,11 @@
                     <img v-else-if="file === null || !file.type.startsWith('image/')" class="profilePic" src="../Icons/Account Icon.svg">
                     <template v-else>
                         <img :src="fileDataUrl" class="profilePic" alt="Profile Image" />
-                        <!-- <p v-if="object.actor === $graffitiSession.value.actor">
-                            <button @click="$graffiti.delete(object, $graffitiSession.value)">
-                                Delete {{ file.name }}
-                            </button>
-                        </p> -->
                     </template>
                 </graffiti-object-to-file>
             </graffiti-get>
             <h2>{{profile.value.username}}</h2>
             <p>{{profile.value.name}}</p>
-            <button @click="checkProfiles()">check</button>
             <button @click="deleteProfile(profile)">delete</button>
             <router-link :to="`/profile-setup`"><button>edit profile</button></router-link>
         </div>

@@ -18,30 +18,16 @@ export async function Profile() {
     components: { GraffitiObjectToFile },
 
     methods: {
-      // TODO: DELETE (was for debugging)
-      // async recoverOrphans() {
-      //   const orphans = this.$graffiti.recoverOrphans({}, this.$graffitiSession.value);
-      //   const orphansArray = [];
-      //   for await (const { object } of orphans) {
-      //     orphansArray.push(object);
-      //     // await this.$graffiti.delete(object, this.$graffitiSession.value);
-      //   }
-      //   console.log(orphansArray);
-      // },
       async checkProfiles() {
         const profiles = this.$graffiti.discover(
-          // channels
-          ["ajz-meet-profiles"],
-          // schema
-          this.profileSchema
+          ["ajz-meet-profiles"], // channels
+          this.profileSchema // schema
         );
   
         const profileArray = [];
         for await (const { object } of profiles) {
           profileArray.push(object);
         }
-  
-        console.log(profileArray);
       },
 
       async deleteProfile(profile) {
@@ -93,10 +79,8 @@ export async function Profile() {
 
       async revealInput(e) {
         const profiles = this.$graffiti.discover(
-          // channels
-          [this.username],
-          // schema
-          this.profileSchema
+          [this.username], // channels
+          this.profileSchema // schema
         );
 
         const profileArray = [];

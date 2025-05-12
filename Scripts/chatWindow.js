@@ -215,9 +215,6 @@ export async function ChatWindow() {
           }
           const profile = profileArray.filter(p => p.value.username == m)[0];
           if (profile) {
-            // console.log(profile.actor);
-            // console.log(m);
-            // allowed.push(profile.actor);
             actualMembers.push(m);
           } else {
             removedMembers.push(m);
@@ -232,22 +229,6 @@ export async function ChatWindow() {
         invite.value.participants.map(p => actualMembers.push(p));
         actualMembers = [...new Set(actualMembers)];
 
-        // const allowed = [];
-        // for (const m of actualMembers) {
-        //   const profiles = this.$graffiti.discover(
-        //     [m], // channels
-        //     this.profileSchema // schema
-        //   );
-        //   const profileArray = [];
-        //   for await (const { object } of profiles) {
-        //     profileArray.push(object);
-        //   }
-        //   const profile = profileArray[0];
-        //   if (profile.actor) {
-        //     allowed.push(profile.actor);
-        //   }
-        // }
-
         await this.$graffiti.put(
           {
             ...invite,
@@ -256,7 +237,6 @@ export async function ChatWindow() {
               ...invite.value,
               participants: actualMembers,
             },
-            // allowed: [...allowed],
           },
           this.$graffitiSession.value,
         );
@@ -504,7 +484,6 @@ export async function ChatWindow() {
       },
 
       async sendScheduler() {
-        console.log("sending scheduler");
         let cellCount = 1;
         const divisor = Object.keys(this.availability).length;
         document.querySelector('.scheduler').querySelectorAll('.grid-cell').forEach(cell => {
@@ -512,19 +491,6 @@ export async function ChatWindow() {
           this.availability[rowNum]["hours"][parseInt(this.startTime) + Math.floor((cellCount - 1) / divisor)] = cell.classList.contains('selected');
           cellCount++;
         });
-
-        // DELETE?
-        // get current number of schedulers sent in chat
-        // const schedulers = this.$graffiti.discover(
-        //   [this.channel], // channels
-        //   this.schedulerSchema // schema
-        // );
-
-        // const schedulersArray = [];
-        // for await (const { object } of schedulers) {
-        //   schedulersArray.push(object);
-        // }
-        // const numSchedulers = schedulersArray.length;
 
         // put scheduler object in chat channel
         const tempScheduler = await this.$graffiti.put(
@@ -545,17 +511,6 @@ export async function ChatWindow() {
           this.$graffitiSession.value,
         );
 
-        // TODO: DELETE LATER
-        // console.log("temp: ", tempScheduler);
-        // console.log("URL: ", tempScheduler.url);
-        // const actualScheduler = await this.$graffiti.get(tempScheduler.url, this.schedulerSchema);
-        // graffiti:local:4JYQMSlI9jr8NHValo1rj5UjBieYtVPX
-        // graffiti:local:4PH5vb3jSEMsYwRVe3shAKnuwOKV3AIj
-        // graffiti:local:fXoMLVastkDHKlG2zIEeGMcaQqsqh9gE
-        // graffiti:local:F83fmGwqOJwHKNcGEEAIE8ys7MHH0D5h
-        // const scheduler = await this.$graffiti.delete("graffiti:local:dsphSs3o2uZ6Wd_igFZ8VQ-1gC_378EO", this.$graffitiSession.value);
-        // console.log("actual: ", actualScheduler);
-
         // put availability object in scheduler channel
         const tempAvailability = await this.$graffiti.put(
           {
@@ -571,7 +526,6 @@ export async function ChatWindow() {
           },
           this.$graffitiSession.value,
         );
-        // console.log("temp 2", tempAvailability);
         this.toggleScheduler();
 
         this.schedulerTitle = "";
@@ -650,7 +604,6 @@ export async function ChatWindow() {
       showGrid() {
         document.querySelectorAll(".scheduler-setup")[document.querySelectorAll(".scheduler-setup").length - 1].classList.remove("reveal");
         document.querySelectorAll(".scheduler-grid")[document.querySelectorAll(".scheduler-grid").length - 1].classList.add("reveal");
-        console.log(document.querySelector(".scheduler-grid"));
       },
 
       async leave() {
@@ -785,9 +738,6 @@ export async function ChatWindow() {
           this.memberNames[m] = name;
         }
       }
-      // async deleteObject(object) {
-      //   await this.$graffiti.delete(object.url, this.$graffitiSession.value);
-      // }
     },
 
     template: await fetch("./Components/chatWindow.html").then((r) => r.text()),

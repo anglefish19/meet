@@ -6,7 +6,6 @@ import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
 import { UserContent } from "./userContent.js";
 import { GeneralContent } from "./generalContent.js";
 import { SetupContent } from "./setupContent.js";
-// import { Scheduler } from "./scheduler.js";
 
 const profileSchema = {
   properties: {
@@ -37,8 +36,6 @@ const router = createRouter({
     { path: "/:username/:view", component: UserContent, props: true },
     { path: "/:username/:view/:chatName/:channel", component: UserContent, props: true },
     { path: "/:username/:chatName/:channel", component: UserContent, props: true },
-
-    // { path: "/scheduler", component: Scheduler },
   ],
 });
 
@@ -53,8 +50,6 @@ createApp({
     GeneralContent: defineAsyncComponent(GeneralContent),
     SetupContent: defineAsyncComponent(SetupContent),
     UserContent: defineAsyncComponent(UserContent),
-
-    // Scheduler: defineAsyncComponent(Scheduler),
   },
 
   mounted() {

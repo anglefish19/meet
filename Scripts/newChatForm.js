@@ -41,8 +41,6 @@ export async function NewChatForm() {
           }
           const profile = profileArray.filter(p => p.value.username == m)[0];
           if (profile) {
-            // console.log(profile.actor);
-            // console.log(m);
             allowed.push(profile.actor);
             actualMembers.push(m);
           } else {
@@ -62,7 +60,6 @@ export async function NewChatForm() {
               published: Date.now(),
               channel: channel,
             },
-            // allowed: allowed,
           },
           this.$graffitiSession.value,
         );

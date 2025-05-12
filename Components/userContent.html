@@ -1,7 +1,6 @@
 <main class="generalLayout" v-if="$graffitiSession.value">
     <NavBar :username="username" :chatName="chatName" :channel="channel"></NavBar>
     <Profile v-if="this.view == 'profile'" :profileSchema="profileSchema" :username="username"></Profile>
-    <Calendar v-else-if="this.view == 'calendar'"></Calendar>
     <section v-else class="sideAndChatLayout">
         <SideBar :username="username" :view="view" :inviteSchema="inviteSchema" :profileSchema="profileSchema" @channel="getChannel"></SideBar>
         <ChatWindow 

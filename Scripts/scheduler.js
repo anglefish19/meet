@@ -59,58 +59,14 @@ export async function Scheduler() {
         for await (const { object } of schedulers) {
           schedulersArray.push(object);
         }
-        console.log("schedulersArray", schedulersArray);
         for (let i = 0; i < schedulersArray.length; i++) {
           if (schedulersArray[i].url == this.schedulerObject.url) {
             this.index = i;
-            console.log(i);
             break;
           }
-
-          // await this.$graffiti.delete(schedulersArray[i].url, this.$graffitiSession.value);
         }
 
         this.getAllAvailability();
-        // // get any availabilities
-        // const availabilities = this.$graffiti.discover(
-        //   [this.schedulerObject.url], // channels
-        //   this.availabilitySchema // schema
-        // );
-        // let availabilitiesArray = [];
-        // for await (const { object } of availabilities) {
-        //   availabilitiesArray.push(object);
-        // }
-        // console.log(availabilitiesArray);
-
-        // let max = 1;
-        // // set up allAvailabilities
-        // Object.keys(availabilitiesArray[0].value.availability).map(col => {
-        //   this.allAvailability[col] = {
-        //     date: availabilitiesArray[0].value.availability[col]["date"],
-        //     hours: {}
-        //   };
-        //   Object.keys(availabilitiesArray[0].value.availability[col]["hours"]).map(h => this.allAvailability[col]["hours"][h] = {
-        //     list: [],
-        //     text: "no one",
-        //   });
-        // });
-        // availabilitiesArray.map(a => {
-        //   Object.keys(a.value.availability).map(col => {
-        //     Object.keys(a.value.availability[col]["hours"]).map(h => {
-        //       if (a.value.availability[col]["hours"][h]) {
-        //         this.allAvailability[col]["hours"][h]["list"].push(a.value.username);
-        //         const currentText = this.allAvailability[col]["hours"][h]["text"];
-        //         this.allAvailability[col]["hours"][h]["text"] = currentText == "no one" ? a.value.username : currentText + ", " + a.value.username;
-        //         max = Math.max(max, this.allAvailability[col]["hours"][h]["list"].length + 1);
-        //       }
-        //     });
-        //   });
-        // });
-
-        // // set up colors;
-        // for (let i = 1; i < max; i++) {
-        //   this.colors.push("rgba(141, 189, 231, " + 2/3 * (i + 1) / max + ")");
-        // }
 
         const comparativeST = new Date((new Date(this.startDate)).getTime() + this.offset);
         const comparativeET = new Date((new Date(this.endDate)).getTime() + this.offset);
@@ -232,7 +188,6 @@ export async function Scheduler() {
           this.availability[rowNum]["hours"][this.startTime + Math.floor((cellCount - 1) / divisor)] = cell.classList.contains('selected');
           cellCount++;
         });
-        console.log("availability", this.availability);
 
         // put availability object in scheduler channel
         const availabilities = this.$graffiti.discover(
@@ -245,10 +200,7 @@ export async function Scheduler() {
         for await (const { object } of availabilities) {
           availabilitiesArray.push(object);
         }
-        // const availability = availabilitiesArray.filter(a => a.actor == this.$graffitiSession.value.actor)[0];
-        console.log("all availabilities", availabilitiesArray);
         const availability = availabilitiesArray.filter(a => a.actor == this.$graffitiSession.value.actor)[0];
-        console.log("user's saved availability", availability);
 
         if (availability) {
           const patch = {
@@ -263,10 +215,7 @@ export async function Scheduler() {
             availability,
             this.$graffitiSession.value,
           );
-          console.log("availability patched");
         } else {
-          console.log(this.username);
-          console.log(this.schedulerObject.url);
           const temp = await this.$graffiti.put(
             {
               channels: [this.schedulerObject.url],
@@ -282,8 +231,6 @@ export async function Scheduler() {
             this.$graffitiSession.value,
           );
           const actual = await this.$graffiti.get(temp.url, {});
-          console.log(actual);
-          console.log("availability put");
         }
 
         await this.getAllAvailability();
@@ -337,7 +284,6 @@ export async function Scheduler() {
         for await (const { object } of availabilities) {
           availabilitiesArray.push(object);
         }
-        console.log("availabilities for scheduler " + this.index, availabilitiesArray);
 
         let max = 1;
         // set up allAvailabilities
@@ -383,10 +329,7 @@ export async function Scheduler() {
         schedulerGrid.querySelectorAll('.grid-cell').forEach(cell => {
           // set color of cell
           const r = (cellCount + 1) % numCols == 0 ? numCols : (cellCount + 1) % numCols;
-          // console.log(this.allAvailability[r]);
-          // console.log(parseInt(this.startTime) + Math.floor((cellCount) / numCols));
           const numPeople = this.allAvailability[r]["hours"][parseInt(this.startTime) + Math.floor((cellCount) / numCols)]["list"].length;
-          // console.log(this.colors[numPeople]);
           cell.style.backgroundColor = this.colors[numPeople];
           cell.title = "available: " + this.allAvailability[r]["hours"][parseInt(this.startTime) + Math.floor((cellCount) / numCols)]["text"];
           cellCount++;

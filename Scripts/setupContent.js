@@ -131,7 +131,6 @@ export async function SetupContent() {
         await this.$graffiti.put(
           {
             channels: [this.username, "ajz-meet-profiles"],
-            // channels: [this.$graffitiSession.value.actor, "designftw-2025-studio2"],
             value: {
               firstName: this.firstName,
               lastName: this.lastName,
