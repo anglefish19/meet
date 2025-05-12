@@ -469,6 +469,7 @@ input[type="file"] {
     right: 6pt;
     width: 12em;
     height: min-content;
+    z-index: 1;
 }
 
 #chatMenu button {

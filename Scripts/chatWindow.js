@@ -194,7 +194,7 @@ export async function ChatWindow() {
           return;
         }
         else {
-          members = members.split(",");
+          members = members.split(", ");
         }
         let actualMembers = [];
         const removedMembers = [];
@@ -260,13 +260,36 @@ export async function ChatWindow() {
         }
 
         await this.getMemberNames();
-        this.toggleMembersList();
+        document.querySelector('#membersList').classList.add("revealMembersList");
       },
 
       // TODO
-      // async removeMember(invite, member) {
-        
-      // },
+      async removeMember(invite, member) {
+        let actualMembers = [];
+        invite.value.participants.map(p => {
+          if (p != member) {
+            actualMembers.push(p);
+          }
+        });
+
+        actualMembers = [...new Set(actualMembers)];
+        this.chatMembers = [...actualMembers];
+        const channels = new Set(actualMembers);
+
+        await this.$graffiti.put(
+          {
+            ...invite,
+            channels: [...channels],
+            value: {
+              ...invite.value,
+              participants: actualMembers,
+            },
+          },
+          this.$graffitiSession.value,
+        );
+
+        await this.getMemberNames();
+      },
 
       async sendMessage() {
         if (!this.message) {
@@ -626,10 +649,6 @@ export async function ChatWindow() {
       },
 
       // TODO
-      removeUser() {
-
-      },
-
       leave() {
 
       },

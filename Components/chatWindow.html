@@ -27,7 +27,7 @@
                         <span>{{this.memberNames[m]}} ({{m}})</span>
                         <span v-if="m == invite.value.owner" class="italic">owner</span>
                         <button v-else-if="m == this.username && invite.actor != $graffitiSession.value.actor" @click="leave">leave</button>
-                        <button v-else-if="invite.actor === $graffitiSession.value.actor && m != this.username" @click="removeMember(m)">remove</button>
+                        <button v-else-if="invite.actor === $graffitiSession.value.actor && m != this.username" @click="removeMember(invite, m)">remove</button>
                     </li>
                 </ul>
             </section>
